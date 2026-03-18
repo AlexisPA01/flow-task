@@ -1,11 +1,22 @@
-const http = require('http');
-const host = 'localhost';
-const port = 3000;
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
 
-const server = http.createServer((req, res) => {
-    res.end('Hello World\\n');
-});
+import routes from "./routes/index.js";
+//import { errorHandler } from "./middleware/error.middleware.js";
 
-server.listen(port, host, () => {
-    console.log(`Server running at http://${host}:${port}/`);
-});
+const app = express();
+
+app.use(express.json());
+app.use(cors({
+    origin: "*"
+}));
+app.use(helmet());
+
+// rutas
+app.use("/api/v1", routes);
+
+// middleware de errores
+//app.use(errorHandler);
+
+export default app;
