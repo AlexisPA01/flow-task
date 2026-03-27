@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 
 import routes from "./routes/index.js";
-//import { errorHandler } from "./middleware/error.middleware.js";
+import { errorHandler } from "./middleware/middleware.js";
 
 const app = express();
 
@@ -14,7 +14,9 @@ app.use(cors({
 app.use(helmet());
 
 // rutas
-app.use("/api/v1", routes);
+app.use("/api/", routes);
+
+app.use(errorHandler);
 
 // middleware de errores
 //app.use(errorHandler);
