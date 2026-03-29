@@ -1,7 +1,7 @@
 import { db } from "../../config/database.js";
 
 export const getUsers = async () => {
-    const result = await db.query("SELECT id, email, avatar_url, is_active FROM users");
+    const result = await db.query("select id, email, avatar_url, is_active from users");
 
     return result.rows;
 };
@@ -39,6 +39,15 @@ export const getUserByEmail = async (email) => {
     const result = await db.query(
         "select * from users where email = $1",
         [email]
+    );
+
+    return result.rows[0];
+};
+
+export const getUserById = async (id) => {
+    const result = await db.query(
+        "select * from users where id = $1",
+        [id]
     );
 
     return result.rows[0];

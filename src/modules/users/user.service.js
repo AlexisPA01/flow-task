@@ -7,7 +7,7 @@ export const getUsers = async () => {
 };
 
 export const createUser = async ({ email, password, avatarUrl }) => {
-    const existingUser = await userRepository.findByEmail(email);
+    const existingUser = await userRepository.getUserByEmail(email);
 
     if (existingUser) {
         throw new AppError("The email is already registered", 409, "USER_EMAIL_ALREADY_EXISTS", {
@@ -35,7 +35,7 @@ export const createUser = async ({ email, password, avatarUrl }) => {
 };
 
 export const updateUser = async ({ email, avatarUrl }, id) => {
-    const existingUser = await userRepository.findByEmail(email);
+    const existingUser = await userRepository.getUserByEmail(email);
 
     if (existingUser && existingUser?.id !== id) {
         throw new AppError("The email is already registered", 409, "USER_EMAIL_ALREADY_EXISTS", {

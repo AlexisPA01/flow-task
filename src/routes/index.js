@@ -9,7 +9,7 @@ import organizationRoutes from "../modules/organizations/organizations.routes.js
 // import priorityRoutes from "../modules/priority/priority.routes.js";
 // import projectMembersRoutes from "../modules/project-members/project-members.routes.js";
 // import projectsRoutes from "../modules/projects/projects.routes.js";
-// import roleRoutes from "../modules/role/role.routes.js";
+import roleRoutes from "../modules/role/role.routes.js";
 // import statusRoutes from "../modules/status/status.routes.js";
 // import taskCommentsRoutes from "../modules/task-comments/task-comments.routes.js";
 // import taskHistoryRoutes from "../modules/task-history/task-history.routes.js";

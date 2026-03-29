@@ -9,7 +9,7 @@ export const getOrganizations = async (req, res, next) => {
 
         return res.status(201).json({
             success: true,
-            message: "Organizations obtain successfully",
+            message: "Organizations obtained successfully",
             data: organizations,
         });
     } catch (error) {

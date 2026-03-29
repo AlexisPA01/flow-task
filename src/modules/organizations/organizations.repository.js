@@ -1,7 +1,7 @@
 import { db } from "../../config/database.js";
 
 export const getOrganizations = async () => {
-    const result = await db.query("SELECT id, name, slug, owner_id FROM organizations");
+    const result = await db.query("select id, name, slug, owner_id from organizations");
 
     return result.rows;
 };

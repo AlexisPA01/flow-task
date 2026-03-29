@@ -1,6 +1,6 @@
 import * as organizationRepository from "./organizations.repository.js";
+import * as userRepository from "../users/user.repository.js";
 import { AppError, mapDatabaseError } from "../../middleware/middleware.js";
-import { id } from "zod/locales";
 
 export const getOrganizations = async () => {
     return await organizationRepository.getOrganizations();
@@ -18,6 +18,19 @@ const generateSlug = (name) => {
 
 export const createOrganization = async ({ name, ownerId }) => {
     try {
+        const owner = await userRepository.getUserById(ownerId);
+        if (!owner) {
+            throw new AppError(
+                "Owner does not exist",
+                404,
+                "OWNER_NOT_FOUND",
+                {
+                    field: "ownerId",
+                    issue: "not_found"
+                }
+            );
+        }
+
         const slug = generateSlug(name);
 
         const organization = await organizationRepository.createOrganization({
@@ -37,6 +50,19 @@ export const createOrganization = async ({ name, ownerId }) => {
 
 export const updateOrganization = async (id, { name, ownerId }) => {
     try {
+        const owner = await userRepository.getUserById(ownerId);
+        if (!owner) {
+            throw new AppError(
+                "Owner does not exist",
+                404,
+                "OWNER_NOT_FOUND",
+                {
+                    field: "ownerId",
+                    issue: "not_found"
+                }
+            );
+        }
+
         const slug = generateSlug(name);
 
         const organization = await organizationRepository.updateOrganization({

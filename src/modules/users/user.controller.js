@@ -9,7 +9,7 @@ export const getUsers = async (req, res, next) => {
 
         return res.status(201).json({
             success: true,
-            message: "Users obtain successfully",
+            message: "Users obtained successfully",
             data: users,
         });
     } catch (error) {
