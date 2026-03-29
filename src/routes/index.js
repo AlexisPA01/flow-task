@@ -30,7 +30,7 @@ router.use("/organizations", organizationRoutes);
 // router.use("/priority", priorityRoutes);
 // router.use("/project-members", projectMembersRoutes);
 // router.use("/projects", projectsRoutes);
-// router.use("/role", roleRoutes);
+router.use("/role", roleRoutes);
 // router.use("/status", statusRoutes);
 // router.use("/task-comments", taskCommentsRoutes);
 // router.use("/task-history", taskHistoryRoutes);
