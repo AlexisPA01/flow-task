@@ -7,13 +7,11 @@ export const getUsers = async (req, res, next) => {
     try {
         const users = await userService.getUsers();
 
-        // res.json({
-        //     success: true,
-        //     data: users
-        // });
-        res.json({
-            data: users
-        })
+        return res.status(201).json({
+            success: true,
+            message: "Users obtain successfully",
+            data: users,
+        });
     } catch (error) {
         next(error);
     }
@@ -103,7 +101,7 @@ export const getUserByEmail = async (req, res, next) => {
 
         return res.status(201).json({
             success: true,
-            message: "User obtain successfully",
+            message: "User obtained successfully",
             data: user,
         });
 

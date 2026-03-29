@@ -1,25 +1,27 @@
 import { db } from "../../config/database.js";
 
-export const findAll = async () => {
+export const getUsers = async () => {
     const result = await db.query("SELECT id, email, avatar_url, is_active FROM users");
 
     return result.rows;
 };
 
-export const create = async ({ email, passwordHash, avatarUrl }) => {
+export const createUser = async ({ email, passwordHash, avatarUrl }) => {
     const result = await db.query(
-        `INSERT INTO users (email, password_hash, avatar_url)
-     VALUES ($1, $2, $3)
-     RETURNING id, email, avatar_url, is_active, created_at`,
+        `insert into users (email, password_hash, avatar_url)
+     values ($1, $2, $3)
+     returning id, email, avatar_url, is_active, created_at`,
         [email, passwordHash, avatarUrl || null]
     );
 
     return result.rows[0];
 };
 
-export const update = async ({ id, email, avatarUrl }) => {
+export const updateUser = async ({ id, email, avatarUrl }) => {
     const result = await db.query(
-        `update users set email = $1, avatar_url = $2, updated_at = $3 where id = $4`, [email, avatarUrl, new Date().toISOString(), id]
+        `update users set email = $1, avatar_url = $2, updated_at = now() where id = $3
+        returning id, email, avatar_url, is_active, created_at, updated_at`,
+        [email, avatarUrl, id]
     );
 
     return result.rows[0];
@@ -27,15 +29,15 @@ export const update = async ({ id, email, avatarUrl }) => {
 
 export const updatePassword = async ({ id, passwordHash }) => {
     const result = await db.query(
-        `update users set password_hash = $1, updated_at = $2 where id = $3`, [passwordHash, new Date().toISOString(), id]
+        `update users set password_hash = $1, updated_at = now() where id = $2`, [passwordHash, id]
     );
 
     return result.rows[0];
 };
 
-export const findByEmail = async (email) => {
+export const getUserByEmail = async (email) => {
     const result = await db.query(
-        "SELECT * FROM users WHERE email = $1",
+        "select * from users where email = $1",
         [email]
     );
 

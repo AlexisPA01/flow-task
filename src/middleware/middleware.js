@@ -46,13 +46,9 @@ export const mapDatabaseError = (error) => {
     switch (error.code) {
         case "23505":
             return new AppError(
-                "The email is already registered",
+                "The value is already registered",
                 409,
-                "USER_EMAIL_ALREADY_EXISTS",
-                {
-                    field: "email",
-                    issue: "already_exists"
-                }
+                "VALUE_ALREADY_EXISTS",
             );
         case "23502":
             return new AppError(
@@ -60,6 +56,12 @@ export const mapDatabaseError = (error) => {
                 400,
                 "NOT_NULL_VIOLATION",
                 "Null values ​​found"
+            );
+        case "23503":
+            return new AppError(
+                "Referenced resource does not exist",
+                400,
+                "FOREIGN_KEY_VIOLATION"
             );
         default:
             return null;

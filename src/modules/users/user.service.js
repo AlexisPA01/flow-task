@@ -3,7 +3,7 @@ import * as userRepository from "./user.repository.js";
 import { AppError, mapDatabaseError } from "../../middleware/middleware.js";
 
 export const getUsers = async () => {
-    return await userRepository.findAll();
+    return await userRepository.getUsers();
 };
 
 export const createUser = async ({ email, password, avatarUrl }) => {
@@ -19,7 +19,7 @@ export const createUser = async ({ email, password, avatarUrl }) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     try {
-        const user = await userRepository.create({
+        const user = await userRepository.createUser({
             email,
             passwordHash,
             avatarUrl,
@@ -45,7 +45,7 @@ export const updateUser = async ({ email, avatarUrl }, id) => {
     }
 
     try {
-        const user = await userRepository.update({
+        const user = await userRepository.updateUser({
             id,
             email,
             avatarUrl
@@ -80,7 +80,7 @@ export const updatePasswordUser = async (id, password) => {
 
 export const getUserByEmail = async (email) => {
     try {
-        return await userRepository.findByEmail(email);
+        return await userRepository.getUserByEmail(email);
     } catch (error) {
         const mappedError = mapDatabaseError(error);
         if (mappedError) throw mappedError;
