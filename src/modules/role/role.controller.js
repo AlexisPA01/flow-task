@@ -10,7 +10,7 @@ export const getRoles = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "Roles obtained successfully",
-            data: roles,
+            data: roles
         });
     } catch (error) {
         next(error);
@@ -31,7 +31,7 @@ export const createRole = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "Role created successfully",
-            data: role,
+            data: role
         });
     } catch (error) {
         next(error);

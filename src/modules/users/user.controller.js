@@ -10,7 +10,7 @@ export const getUsers = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "Users obtained successfully",
-            data: users,
+            data: users
         });
     } catch (error) {
         next(error);
@@ -31,7 +31,7 @@ export const createUser = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "User created successfully",
-            data: user,
+            data: user
         });
     } catch (error) {
         next(error);
@@ -54,7 +54,7 @@ export const updateUser = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "User updated successfully",
-            data: user,
+            data: user
         });
     } catch (error) {
         console.log(error);
@@ -78,7 +78,7 @@ export const updatePasswordUser = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "User password updated successfully",
-            data: user,
+            data: user
         });
     } catch (error) {
         console.log(error);
@@ -102,7 +102,7 @@ export const getUserByEmail = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "User obtained successfully",
-            data: user,
+            data: user
         });
 
     } catch (error) {
@@ -126,7 +126,7 @@ export const updateManyStatusUser = async (req, res, next) => {
             message: "User status updated successfully",
             data: {
                 updatedCount: result.length,
-                users: result,
+                users: result
             },
         });
     } catch (error) {

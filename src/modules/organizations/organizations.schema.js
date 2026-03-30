@@ -6,10 +6,10 @@ export const createOrganizationSchema = z.object({
         .trim()
         .max(50, "Name too large"),
     ownerId: z
-        .uuid("The id must be valid uuid"),
+        .uuid("The id must be a valid uuid"),
 });
 
 export const getOrganizationById = z.object({
     id: z
-        .uuid("The id must be valid uuid")
+        .uuid("The id must be a valid uuid")
 });

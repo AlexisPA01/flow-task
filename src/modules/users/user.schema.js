@@ -42,7 +42,7 @@ export const getUserByEmailSchema = z.object({
 export const getManyUserStatus = z.array(
     z.object({
         id: z
-            .uuid("The id must be valid uuid"),
+            .uuid("The id must be a valid uuid"),
         isActive: z
             .boolean()
     })

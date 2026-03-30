@@ -10,7 +10,7 @@ export const getOrganizations = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "Organizations obtained successfully",
-            data: organizations,
+            data: organizations
         });
     } catch (error) {
         next(error);
@@ -31,7 +31,7 @@ export const createOrganization = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "Organization created successfully",
-            data: organization,
+            data: organization
         });
     } catch (error) {
         console.log(error);
@@ -55,7 +55,7 @@ export const updateOrganization = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "Organization updated successfully",
-            data: organization,
+            data: organization
         });
     } catch (error) {
         next(error);
@@ -78,7 +78,7 @@ export const getOrganizationById = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             message: "Organization obtained successfully",
-            data: organization,
+            data: organization
         });
     } catch (error) {
         next(error);
