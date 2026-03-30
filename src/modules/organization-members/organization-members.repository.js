@@ -1,7 +1,28 @@
 import { db } from "../../config/database.js";
 
+const selectQuery = `select 
+        om.id, 
+        om.joined_at,
+        json_build_object(
+            'id', o.id, 
+            'name', o.name, 
+            'slug', o.slug
+        ) as organization,
+        json_build_object(
+            'id', u.id, 
+            'email', u.email
+        ) as user,
+        json_build_object(
+            'id', r.id, 
+            'name', r.name
+        ) as role
+    from organization_members om
+    inner join organizations o on om.organization_id = o.id 
+    inner join users u on om.user_id = u.id
+    inner join role r on om.role_id = r.id`
+
 export const getOrganiationMembers = async () => {
-    const result = await db.query("select id, organization_id, user_id, role_id, joined_at from organization_members");
+    const result = await db.query(selectQuery);
 
     return result.rows;
 };
@@ -45,28 +66,19 @@ export const deleteOrganiationMembersByUserId = async (userId) => {
 };
 
 export const getOrganiationMemberById = async (id) => {
-    const result = await db.query(
-        "select id, organization_id, user_id, role_id, joined_at from organization_members where id = $1",
-        [id]
-    );
+    const result = await db.query(`${selectQuery} where om.id = $1`, [id]);
 
     return result.rows;
 };
 
 export const getOrganiationMembersByOrganizationId = async (organizationId) => {
-    const result = await db.query(
-        "select id, organization_id, user_id, role_id, joined_at from organization_members where organization_id = $1",
-        [organizationId]
-    );
+    const result = await db.query(`${selectQuery} where o.id = $1`, [organizationId]);
 
     return result.rows;
 };
 
 export const getOrganiationMembersByUserId = async (userId) => {
-    const result = await db.query(
-        "select id, organization_id, user_id, role_id, joined_at from organization_members where user_id = $1",
-        [userId]
-    );
+    const result = await db.query(`${selectQuery} where u.id = $1`, [userId]);
 
     return result.rows;
 };
