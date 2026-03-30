@@ -1,7 +1,7 @@
 import * as organizationService from "./organizations.service.js";
 import * as organizationSchema from "./organizations.schema.js";
 import { AppError } from "../../middleware/middleware.js";
-import { z } from "zod";
+import { toUpperCase, z } from "zod";
 
 export const getOrganizations = async (req, res, next) => {
     try {
@@ -34,7 +34,6 @@ export const createOrganization = async (req, res, next) => {
             data: organization
         });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };

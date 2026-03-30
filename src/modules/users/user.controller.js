@@ -57,7 +57,6 @@ export const updateUser = async (req, res, next) => {
             data: user
         });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };
@@ -81,7 +80,6 @@ export const updatePasswordUser = async (req, res, next) => {
             data: user
         });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };

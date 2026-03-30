@@ -34,7 +34,6 @@ export const createOrganiationMembers = async (req, res, next) => {
             data: organizationMember
         });
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };

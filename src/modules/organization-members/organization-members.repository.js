@@ -68,7 +68,7 @@ export const deleteOrganiationMembersByUserId = async (userId) => {
 export const getOrganiationMemberById = async (id) => {
     const result = await db.query(`${selectQuery} where om.id = $1`, [id]);
 
-    return result.rows;
+    return result.rows[0];
 };
 
 export const getOrganiationMembersByOrganizationId = async (organizationId) => {

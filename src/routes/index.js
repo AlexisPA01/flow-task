@@ -8,7 +8,7 @@ import organizationMembersRoutes from "../modules/organization-members/organizat
 import organizationRoutes from "../modules/organizations/organizations.routes.js";
 // import priorityRoutes from "../modules/priority/priority.routes.js";
 // import projectMembersRoutes from "../modules/project-members/project-members.routes.js";
-// import projectsRoutes from "../modules/projects/projects.routes.js";
+import projectsRoutes from "../modules/projects/projects.routes.js";
 import roleRoutes from "../modules/role/role.routes.js";
 // import statusRoutes from "../modules/status/status.routes.js";
 // import taskCommentsRoutes from "../modules/task-comments/task-comments.routes.js";
@@ -29,7 +29,7 @@ router.use("/organization-members", organizationMembersRoutes);
 router.use("/organizations", organizationRoutes);
 // router.use("/priority", priorityRoutes);
 // router.use("/project-members", projectMembersRoutes);
-// router.use("/projects", projectsRoutes);
+router.use("/projects", projectsRoutes);
 router.use("/role", roleRoutes);
 // router.use("/status", statusRoutes);
 // router.use("/task-comments", taskCommentsRoutes);
