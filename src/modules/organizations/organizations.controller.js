@@ -1,7 +1,7 @@
 import * as organizationService from "./organizations.service.js";
 import * as organizationSchema from "./organizations.schema.js";
 import { AppError } from "../../middleware/middleware.js";
-import { toUpperCase, z } from "zod";
+import { z } from "zod";
 
 export const getOrganizations = async (req, res, next) => {
     try {
@@ -40,16 +40,20 @@ export const createOrganization = async (req, res, next) => {
 
 export const updateOrganization = async (req, res, next) => {
     try {
-        const parsed = organizationSchema.createOrganizationSchema.safeParse(req.body);
+        const bodyParsed = organizationSchema.createOrganizationSchema.safeParse(req.body);
 
-        if (!parsed.success) {
-            const flattened = z.flattenError(parsed.error);
+        if (!bodyParsed.success) {
+            const flattened = z.flattenError(bodyParsed.error);
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const id = req.params.id;
+        const paramsParsed = organizationSchema.getOrganizationById.safeParse(req.params);
+        if (!paramsParsed.success) {
+            const flattened = z.flattenError(paramsParsed.error);
+            throw new AppError("Invalid params", 400, "VALIDATION_ERROR", flattened.fieldErrors);
+        }
 
-        const organization = await organizationService.updateOrganization(id, parsed.data);
+        const organization = await organizationService.updateOrganization(paramsParsed.data.id, bodyParsed.data);
 
         return res.status(201).json({
             success: true,
@@ -70,9 +74,7 @@ export const getOrganizationById = async (req, res, next) => {
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const id = req.params.id;
-
-        const organization = await organizationService.getOrganizationById(id);
+        const organization = await organizationService.getOrganizationById(parsed.data.id);
 
         return res.status(201).json({
             success: true,

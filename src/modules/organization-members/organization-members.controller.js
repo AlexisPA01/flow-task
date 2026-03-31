@@ -47,9 +47,7 @@ export const deleteOrganiationMemberById = async (req, res, next) => {
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const id = req.params.id;
-
-        const result = await organizationMemberService.deleteOrganiationMemberById(id);
+        const result = await organizationMemberService.deleteOrganiationMemberById(parsed.data.id);
 
         return res.status(200).json({
             success: true,
@@ -72,9 +70,7 @@ export const deleteOrganiationMembersByOrganizationId = async (req, res, next) =
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const organizationId = req.params.organizationId;
-
-        const result = await organizationMemberService.deleteOrganiationMembersByOrganizationId(organizationId);
+        const result = await organizationMemberService.deleteOrganiationMembersByOrganizationId(parsed.data.organizationId);
 
         return res.status(200).json({
             success: true,
@@ -97,9 +93,7 @@ export const deleteOrganiationMembersByUserId = async (req, res, next) => {
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const userId = req.params.userId;
-
-        const result = await organizationMemberService.deleteOrganiationMembersByUserId(userId);
+        const result = await organizationMemberService.deleteOrganiationMembersByUserId(parsed.data.userId);
 
         return res.status(200).json({
             success: true,
@@ -122,9 +116,7 @@ export const getOrganiationMemberById = async (req, res, next) => {
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const id = req.params.id;
-
-        const organizationMember = await organizationMemberService.getOrganiationMemberById(id);
+        const organizationMember = await organizationMemberService.getOrganiationMemberById(parsed.data.id);
 
         return res.status(201).json({
             success: true,
@@ -145,9 +137,7 @@ export const getOrganiationMembersByOrganizationId = async (req, res, next) => {
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const organizationId = req.params.organizationId;
-
-        const organizationMember = await organizationMemberService.getOrganiationMembersByOrganizationId(organizationId);
+        const organizationMember = await organizationMemberService.getOrganiationMembersByOrganizationId(parsed.data.organizationId);
 
         return res.status(201).json({
             success: true,
@@ -168,9 +158,7 @@ export const getOrganiationMembersByUserId = async (req, res, next) => {
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const userId = req.params.userId;
-
-        const organizationMember = await organizationMemberService.getOrganiationMembersByUserId(userId);
+        const organizationMember = await organizationMemberService.getOrganiationMembersByUserId(parsed.data.userId);
 
         return res.status(201).json({
             success: true,

@@ -72,13 +72,13 @@ export const getOrganiationMemberById = async (id) => {
 };
 
 export const getOrganiationMembersByOrganizationId = async (organizationId) => {
-    const result = await db.query(`${selectQuery} where o.id = $1`, [organizationId]);
+    const result = await db.query(`${selectQuery} where om.organization_id = $1`, [organizationId]);
 
     return result.rows;
 };
 
 export const getOrganiationMembersByUserId = async (userId) => {
-    const result = await db.query(`${selectQuery} where u.id = $1`, [userId]);
+    const result = await db.query(`${selectQuery} where om.user_id = $1`, [userId]);
 
     return result.rows;
 };

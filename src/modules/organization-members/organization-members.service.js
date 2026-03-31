@@ -12,9 +12,9 @@ export const createOrganiationMembers = async ({ organizationId, userId, roleId 
         const user = await userRepository.getUserById(userId);
         if (!user) {
             throw new AppError(
-                "Owner does not exist",
+                "User does not exist",
                 404,
-                "OWNER_NOT_FOUND",
+                "USER_NOT_FOUND",
                 {
                     field: "userId",
                     issue: "not_found"
@@ -52,19 +52,6 @@ export const createOrganiationMembers = async ({ organizationId, userId, roleId 
 
 export const deleteOrganiationMemberById = async (id) => {
     try {
-        const organizationMemberCheck = await organizationMemberRepository.getOrganiationMemberById(id);
-        if (!organizationMemberCheck) {
-            throw new AppError(
-                "Organization member does not exist",
-                404,
-                "ORGANIZATION_MEMBER_NOT_FOUND",
-                {
-                    field: "id",
-                    issue: "not_found"
-                }
-            );
-        }
-
         const result = await organizationMemberRepository.deleteOrganiationMemberById(id);
 
         return { deletedCount: result || 0 };

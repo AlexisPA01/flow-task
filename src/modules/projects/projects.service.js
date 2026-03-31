@@ -16,9 +16,9 @@ export const createProject = async ({ name, key, description, organizationId, cr
         const user = await userRepository.getUserById(createdBy);
         if (!user) {
             throw new AppError(
-                "Owner does not exist",
+                "User does not exist",
                 404,
-                "OWNER_NOT_FOUND",
+                "USER_NOT_FOUND",
                 {
                     field: "userId",
                     issue: "not_found"

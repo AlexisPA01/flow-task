@@ -47,3 +47,8 @@ export const getManyUserStatus = z.array(
             .boolean()
     })
 ).min(1);
+
+export const getUserByIdSchema = z.object({
+    id: z
+        .uuid("The id must be a valid uuid")
+});

@@ -40,16 +40,20 @@ export const createUser = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
     try {
-        const parsed = userSchemas.updateUserSchema.safeParse(req.body);
+        const bodyParsed = userSchemas.updateUserSchema.safeParse(req.body);
 
-        if (!parsed.success) {
-            const flattened = z.flattenError(parsed.error);
+        if (!bodyParsed.success) {
+            const flattened = z.flattenError(bodyParsed.error);
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const id = req.params.id;
+        const paramsParsed = userSchemas.getUserByIdSchema.safeParse(req.params);
+        if (!paramsParsed.success) {
+            const flattened = z.flattenError(paramsParsed.error);
+            throw new AppError("Invalid params", 400, "VALIDATION_ERROR", flattened.fieldErrors);
+        }
 
-        const user = await userService.updateUser(parsed.data, id);
+        const user = await userService.updateUser(bodyParsed.data, paramsParsed.data.id);
 
         return res.status(201).json({
             success: true,
@@ -63,16 +67,20 @@ export const updateUser = async (req, res, next) => {
 
 export const updatePasswordUser = async (req, res, next) => {
     try {
-        const parsed = userSchemas.updateUserPasswordSchema.safeParse(req.body);
+        const bodyParsed = userSchemas.updateUserPasswordSchema.safeParse(req.body);
 
-        if (!parsed.success) {
-            const flattened = z.flattenError(parsed.error);
+        if (!bodyParsed.success) {
+            const flattened = z.flattenError(bodyParsed.error);
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const id = req.params.id;
+        const paramsParsed = userSchemas.getUserByIdSchema.safeParse(req.params);
+        if (!paramsParsed.success) {
+            const flattened = z.flattenError(paramsParsed.error);
+            throw new AppError("Invalid params", 400, "VALIDATION_ERROR", flattened.fieldErrors);
+        }
 
-        const user = await userService.updatePasswordUser(id, parsed.data.password);
+        const user = await userService.updatePasswordUser(paramsParsed.data.id, bodyParsed.data.password);
 
         return res.status(201).json({
             success: true,
@@ -93,9 +101,7 @@ export const getUserByEmail = async (req, res, next) => {
             throw new AppError("Invalid data", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const email = req.params.email;
-
-        const user = await userService.getUserByEmail(email);
+        const user = await userService.getUserByEmail(parsed.data.email);
 
         return res.status(201).json({
             success: true,
