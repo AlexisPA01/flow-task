@@ -7,7 +7,7 @@ export const getOrganiationMembers = async (req, res, next) => {
     try {
         const organizationMembers = await organizationMemberService.getOrganiationMembers();
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "Organization members obtained successfully",
             data: organizationMembers,
@@ -49,12 +49,19 @@ export const deleteOrganiationMemberById = async (req, res, next) => {
 
         const result = await organizationMemberService.deleteOrganiationMemberById(parsed.data.id);
 
+
+        if (result.deletedCount === 0) {
+            throw new AppError(
+                "No organization member found with this ID",
+                404,
+                "ORGANIZATION_MEMBER_NOT_FOUND"
+            );
+        }
+
         return res.status(200).json({
             success: true,
-            message: result.deletedCount > 0
-                ? "Organization member deleted successfully"
-                : "No organization member found for this id",
-            data: result.deletedCount > 0 ? true : false
+            message: "Organization member deleted successfully",
+            data: true
         });
     } catch (error) {
         next(error);
@@ -118,7 +125,15 @@ export const getOrganiationMemberById = async (req, res, next) => {
 
         const organizationMember = await organizationMemberService.getOrganiationMemberById(parsed.data.id);
 
-        return res.status(201).json({
+        if (!organizationMember) {
+            throw new AppError(
+                "Organization member not found",
+                404,
+                "ORGANIZATION_MEMBER_NOT_FOUND"
+            );
+        }
+
+        return res.status(200).json({
             success: true,
             message: "Organization member obtained successfully",
             data: organizationMember
@@ -139,7 +154,15 @@ export const getOrganiationMembersByOrganizationId = async (req, res, next) => {
 
         const organizationMember = await organizationMemberService.getOrganiationMembersByOrganizationId(parsed.data.organizationId);
 
-        return res.status(201).json({
+        if (organizationMember === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No organization members found",
+                data: []
+            });
+        }
+
+        return res.status(200).json({
             success: true,
             message: "Organization members obtained successfully",
             data: organizationMember
@@ -160,7 +183,15 @@ export const getOrganiationMembersByUserId = async (req, res, next) => {
 
         const organizationMember = await organizationMemberService.getOrganiationMembersByUserId(parsed.data.userId);
 
-        return res.status(201).json({
+        if (organizationMember === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No organization members found",
+                data: []
+            });
+        }
+
+        return res.status(200).json({
             success: true,
             message: "Organization members obtained successfully",
             data: organizationMember

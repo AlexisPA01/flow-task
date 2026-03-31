@@ -7,7 +7,7 @@ export const getUsers = async (req, res, next) => {
     try {
         const users = await userService.getUsers();
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "Users obtained successfully",
             data: users
@@ -55,7 +55,7 @@ export const updateUser = async (req, res, next) => {
 
         const user = await userService.updateUser(bodyParsed.data, paramsParsed.data.id);
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "User updated successfully",
             data: user
@@ -82,7 +82,7 @@ export const updatePasswordUser = async (req, res, next) => {
 
         const user = await userService.updatePasswordUser(paramsParsed.data.id, bodyParsed.data.password);
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "User password updated successfully",
             data: user
@@ -103,7 +103,15 @@ export const getUserByEmail = async (req, res, next) => {
 
         const user = await userService.getUserByEmail(parsed.data.email);
 
-        return res.status(201).json({
+        if (!user) {
+            throw new AppError(
+                "User not found",
+                404,
+                "USER_MEMBER_NOT_FOUND"
+            );
+        }
+
+        return res.status(200).json({
             success: true,
             message: "User obtained successfully",
             data: user

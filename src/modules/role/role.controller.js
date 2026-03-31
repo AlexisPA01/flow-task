@@ -7,7 +7,7 @@ export const getRoles = async (req, res, next) => {
     try {
         const roles = await roleService.getRoles();
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "Roles obtained successfully",
             data: roles

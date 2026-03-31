@@ -7,7 +7,7 @@ export const getOrganizations = async (req, res, next) => {
     try {
         const organizations = await organizationService.getOrganizations();
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "Organizations obtained successfully",
             data: organizations
@@ -55,7 +55,7 @@ export const updateOrganization = async (req, res, next) => {
 
         const organization = await organizationService.updateOrganization(paramsParsed.data.id, bodyParsed.data);
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "Organization updated successfully",
             data: organization
@@ -76,7 +76,15 @@ export const getOrganizationById = async (req, res, next) => {
 
         const organization = await organizationService.getOrganizationById(parsed.data.id);
 
-        return res.status(201).json({
+        if (!organization) {
+            throw new AppError(
+                "Organization not found",
+                404,
+                "ORGANIZATION_NOT_FOUND"
+            );
+        }
+
+        return res.status(200).json({
             success: true,
             message: "Organization obtained successfully",
             data: organization

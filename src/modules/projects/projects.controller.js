@@ -7,7 +7,7 @@ export const getProjects = async (req, res, next) => {
     try {
         const projects = await projectService.getProjects();
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "Projects obtained successfully",
             data: projects,
@@ -55,7 +55,7 @@ export const updateProject = async (req, res, next) => {
 
         const project = await projectService.updateProject(paramsParsed.data.id, bodyParsed.data);
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
             message: "Project updated successfully",
             data: project
@@ -75,7 +75,15 @@ export const getProjectById = async (req, res, next) => {
 
         const project = await projectService.getProjectById(parsed.data.id);
 
-        return res.status(201).json({
+        if (!project) {
+            throw new AppError(
+                "Project not found",
+                404,
+                "PROJECT_NOT_FOUND"
+            );
+        }
+
+        return res.status(200).json({
             success: true,
             message: "Project obtained successfully",
             data: project
@@ -95,7 +103,15 @@ export const getProjectsByOrganizationId = async (req, res, next) => {
 
         const project = await projectService.getProjectsByOrganizationId(parsed.data.organizationId);
 
-        return res.status(201).json({
+        if (project === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No projects found",
+                data: []
+            });
+        }
+
+        return res.status(200).json({
             success: true,
             message: "Projects obtained successfully",
             data: project
@@ -115,7 +131,15 @@ export const getProjectsByUserId = async (req, res, next) => {
 
         const project = await projectService.getProjectsByUserId(parsed.data.userId);
 
-        return res.status(201).json({
+        if (project === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No projects found",
+                data: []
+            });
+        }
+
+        return res.status(200).json({
             success: true,
             message: "Projects obtained successfully",
             data: project
