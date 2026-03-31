@@ -7,13 +7,17 @@ export const getOrganizations = async () => {
 };
 
 const generateSlug = (name) => {
-    return name
+    return name ? name
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
+        .replace(/&/g, "and")
         .replace(/[^a-z0-9 ]/g, "")
         .trim()
-        .replace(/\s+/g, "-");
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+        : undefined;
 }
 
 export const createOrganization = async ({ name, ownerId }) => {
@@ -51,16 +55,18 @@ export const createOrganization = async ({ name, ownerId }) => {
 export const updateOrganization = async (id, { name, ownerId }) => {
     try {
         const owner = await userRepository.getUserById(ownerId);
-        if (!owner) {
-            throw new AppError(
-                "Owner does not exist",
-                404,
-                "OWNER_NOT_FOUND",
-                {
-                    field: "ownerId",
-                    issue: "not_found"
-                }
-            );
+        if (ownerId !== undefined) {
+            if (!owner) {
+                throw new AppError(
+                    "Owner does not exist",
+                    404,
+                    "OWNER_NOT_FOUND",
+                    {
+                        field: "ownerId",
+                        issue: "not_found"
+                    }
+                );
+            }
         }
 
         const slug = generateSlug(name);

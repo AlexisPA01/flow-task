@@ -19,10 +19,10 @@ export const createOrganization = async ({ name, slug, ownerId }) => {
 
 export const updateOrganization = async ({ id, name, slug, ownerId }) => {
     const result = await db.query(
-        `update organizations set name = $1, slug = $2, owner_id = $3, updated_at = now()
+        `update organizations set name = COALESCE($1, name), slug = COALESCE($2, slug), owner_id = COALESCE($3, owner_id), updated_at = now()
         where id = $4
         returning id, name, slug, owner_id, created_at, updated_at`,
-        [name, slug, ownerId, id]
+        [name ?? null, slug ?? null, ownerId ?? null, id]
     );
 
     return result.rows[0];

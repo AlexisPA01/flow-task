@@ -40,7 +40,7 @@ export const createOrganization = async (req, res, next) => {
 
 export const updateOrganization = async (req, res, next) => {
     try {
-        const bodyParsed = organizationSchema.createOrganizationSchema.safeParse(req.body);
+        const bodyParsed = organizationSchema.updateOrganizationSchema.safeParse(req.body);
 
         if (!bodyParsed.success) {
             const flattened = z.flattenError(bodyParsed.error);

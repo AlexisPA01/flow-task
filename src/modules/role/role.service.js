@@ -1,5 +1,5 @@
 import * as roleRepository from "./role.repository.js";
-import { AppError, mapDatabaseError } from "../../middleware/middleware.js";
+import { mapDatabaseError } from "../../middleware/middleware.js";
 
 export const getRoles = async () => {
     return await roleRepository.getRoles();
