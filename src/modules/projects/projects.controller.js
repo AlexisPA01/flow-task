@@ -55,6 +55,10 @@ export const updateProject = async (req, res, next) => {
 
         const project = await projectService.updateProject(paramsParsed.data.id, bodyParsed.data);
 
+        if (!project) {
+            throw new AppError("Project not found", 404, "PROJECT_NOT_FOUND");
+        }
+
         return res.status(200).json({
             success: true,
             message: "Project updated successfully",

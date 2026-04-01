@@ -19,9 +19,9 @@ export const createUser = async ({ email, passwordHash, avatarUrl }) => {
 
 export const updateUser = async ({ id, email, avatarUrl }) => {
     const result = await db.query(
-        `update users set email = $1, avatar_url = $2, updated_at = now() where id = $3
+        `update users set email = COALESCE($1, email), avatar_url = COALESCE($2, avatar_url), updated_at = now() where id = $3
         returning id, email, avatar_url, is_active, created_at, updated_at`,
-        [email, avatarUrl || null, id]
+        [email || null, avatarUrl || null, id]
     );
 
     return result.rows[0];

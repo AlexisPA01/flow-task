@@ -8,7 +8,7 @@ export const getProjects = async () => {
 };
 
 const generateKey = (key) => {
-    return key.toUpperCase().trim().replaceAll(" ", "");
+    return key ? key.toUpperCase().trim().replaceAll(" ", "") : undefined;
 };
 
 export const createProject = async ({ name, key, description, organizationId, createdBy }) => {

@@ -37,8 +37,9 @@ export const createProject = async ({ name, key, description, organizationId, cr
 
 export const updateProject = async ({ id, name, key, description }) => {
     const result = await db.query(
-        `update projects set name = $1, key = $2, description = $3, updated_at = now() where id = $4`,
-        [name, key, description || null, id]
+        `update projects set name = COALESCE($1, name), key = COALESCE($2, key), description = COALESCE($3, description), updated_at = now() where id = $4
+        returning id, name, key, description, updated_at`,
+        [name || null, key || null, description || null, id]
     );
 
     return result.rows[0];

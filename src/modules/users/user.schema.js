@@ -19,11 +19,21 @@ export const updateUserSchema = z.object({
         .email("The email address must be valid")
         .trim()
         .toLowerCase()
-        .max(255),
+        .max(255)
+        .optional(),
     avatarUrl: z
         .url("It must be a valid URL")
         .optional()
-});
+}).refine(
+    (data) => {
+        const hasEmail = data.email && data.email.trim() !== "";
+        const hasAvatar = data.avatarUrl && data.avatarUrl.trim() !== "";
+        return hasEmail || hasAvatar;
+    },
+    {
+        message: "You must provide at least 'email' or 'avatarUrl'"
+    }
+);
 
 export const updateUserPasswordSchema = z.object({
     password: z
