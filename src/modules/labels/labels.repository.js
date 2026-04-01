@@ -31,7 +31,8 @@ export const createLabel = async ({ name, color, organizationId }) => {
 
 export const updateLabel = async ({ id, name, color }) => {
     const result = await db.query(
-        `update labels set name = COALESCE($1, name), color = COALESCE($2, color) where id = $3`,
+        `update labels set name = COALESCE($1, name), color = COALESCE($2, color) where id = $3
+        returning id, name color, organization_id`,
         [name, color, id]
     );
 
