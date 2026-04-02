@@ -154,7 +154,7 @@ export const getOrganiationMembersByOrganizationId = async (req, res, next) => {
 
         const organizationMember = await organizationMemberService.getOrganiationMembersByOrganizationId(parsed.data.organizationId);
 
-        if (organizationMember === 0) {
+        if (organizationMember.length === 0) {
             return res.status(200).json({
                 success: true,
                 message: "No organization members found",
@@ -183,7 +183,7 @@ export const getOrganiationMembersByUserId = async (req, res, next) => {
 
         const organizationMember = await organizationMemberService.getOrganiationMembersByUserId(parsed.data.userId);
 
-        if (organizationMember === 0) {
+        if (organizationMember.length === 0) {
             return res.status(200).json({
                 success: true,
                 message: "No organization members found",

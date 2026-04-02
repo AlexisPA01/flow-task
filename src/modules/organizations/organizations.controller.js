@@ -55,6 +55,10 @@ export const updateOrganization = async (req, res, next) => {
 
         const organization = await organizationService.updateOrganization(paramsParsed.data.id, bodyParsed.data);
 
+        if (!organization) {
+            throw new AppError("Organization not found", 404, "ORGANIZATION_NOT_FOUND");
+        }
+
         return res.status(200).json({
             success: true,
             message: "Organization updated successfully",

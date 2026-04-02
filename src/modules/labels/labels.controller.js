@@ -55,6 +55,10 @@ export const updateLabel = async (req, res, next) => {
 
         const label = await labelService.updateLabel(paramsParsed.data.id, bodyParsed.data);
 
+        if (!label) {
+            throw new AppError("Label not found", 404, "LABEL_NOT_FOUND");
+        }
+
         return res.status(200).json({
             success: true,
             message: "Label updated successfully",

@@ -16,3 +16,9 @@ export const createPriority = async ({ name }) => {
 
     return result.rows[0];
 };
+
+export const getPriorityById = async (id) => {
+    const result = await db.query(`select id, name from priority where id = $1`, [id]);
+
+    return result.rows[0];
+};

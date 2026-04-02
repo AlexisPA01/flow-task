@@ -10,9 +10,9 @@ export const createNotificationSchema = z.object({
         .min(20, "The description must be at least 20 characters long")
         .max(250, "The description must have a maximum of 250 characters."),
     userId: z
-        .uuid("The id must be a valid uuid"),
+        .uuid("The userId must be a valid uuid"),
     typeId: z
-        .int("The ud must be a valid integer")
+        .int("The typeId must be a valid integer")
 });
 
 export const notificationByIdSchema = z.object({
@@ -22,11 +22,11 @@ export const notificationByIdSchema = z.object({
 
 export const notificationsByUserIdSchema = z.object({
     userId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The userId must be a valid uuid")
 });
 
 export const notificationsByTypeIdSchema = z.object({
     typeId: z
-        .int("The ud must be a valid integer")
+        .int("The typeId must be a valid integer")
 });
 

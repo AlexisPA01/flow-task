@@ -14,7 +14,7 @@ import statusRoutes from "../modules/status/status.routes.js";
 // import taskCommentsRoutes from "../modules/task-comments/task-comments.routes.js";
 // import taskHistoryRoutes from "../modules/task-history/task-history.routes.js";
 // import taskLabelsRoutes from "../modules/task-labels/task-labels.routes.js";
-// import tasksRoutes from "../modules/tasks/tasks.routes.js";
+import tasksRoutes from "../modules/tasks/tasks.routes.js";
 // import taskWatchersRoutes from "../modules/task-watchers/task-watchers.routes.js";
 import userRoutes from "../modules/users/user.routes.js";
 
@@ -35,7 +35,7 @@ router.use("/status", statusRoutes);
 // router.use("/task-comments", taskCommentsRoutes);
 // router.use("/task-history", taskHistoryRoutes);
 // router.use("/task-labels", taskLabelsRoutes);
-// router.use("/tasks", tasksRoutes);
+router.use("/tasks", tasksRoutes);
 // router.use("/task-watchers", taskWatchersRoutes);
 router.use("/users", userRoutes);
 

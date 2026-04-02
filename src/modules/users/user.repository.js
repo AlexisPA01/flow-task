@@ -29,7 +29,8 @@ export const updateUser = async ({ id, email, avatarUrl }) => {
 
 export const updatePassword = async ({ id, passwordHash }) => {
     const result = await db.query(
-        `update users set password_hash = $1, updated_at = now() where id = $2`, [passwordHash, id]
+        `update users set password_hash = $1, updated_at = now() where id = $2
+        returning id, email, avatar_url, is_active, created_at, updated_at`, [passwordHash, id]
     );
 
     return result.rows[0];

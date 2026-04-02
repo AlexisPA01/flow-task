@@ -17,7 +17,7 @@ export const getProjects = async (req, res, next) => {
     }
 };
 
-export const createOrganiationMembers = async (req, res, next) => {
+export const createProject = async (req, res, next) => {
     try {
         const parsed = projectSchema.createProjectSchema.safeParse(req.body);
 
@@ -107,7 +107,7 @@ export const getProjectsByOrganizationId = async (req, res, next) => {
 
         const project = await projectService.getProjectsByOrganizationId(parsed.data.organizationId);
 
-        if (project === 0) {
+        if (project.length === 0) {
             return res.status(200).json({
                 success: true,
                 message: "No projects found",
@@ -135,7 +135,7 @@ export const getProjectsByUserId = async (req, res, next) => {
 
         const project = await projectService.getProjectsByUserId(parsed.data.userId);
 
-        if (project === 0) {
+        if (project.length === 0) {
             return res.status(200).json({
                 success: true,
                 message: "No projects found",
