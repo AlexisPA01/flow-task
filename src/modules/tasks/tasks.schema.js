@@ -78,12 +78,12 @@ export const tasksByProjectIdSchema = z.object({
 
 export const tasksByUserAssigneeIdSchema = z.object({
     assigneeId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The assigneeId must be a valid uuid")
 });
 
 export const tasksByUserReporterIdSchema = z.object({
     reporterId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The reporterId must be a valid uuid")
 });
 
 export const tasksByStatusIdSchema = z.object({
@@ -95,5 +95,5 @@ export const tasksByStatusIdSchema = z.object({
 export const tasksByPriorityIdSchema = z.object({
     priorityId: z
         .coerce.number()
-        .int("The statusId must be a valid integer")
+        .int("The priorityId must be a valid integer")
 });

@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const createProjectMemberSchema = z.object({
     projectId: z
-        .uuid("The id must be a valid uuid"),
+        .uuid("The projectId must be a valid uuid"),
     userId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The userId must be a valid uuid")
 });
 
 export const projectMemberByIdSchema = z.object({
@@ -14,11 +14,11 @@ export const projectMemberByIdSchema = z.object({
 
 export const projectMembersByProjectIdSchema = z.object({
     projectId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The projectId must be a valid uuid")
 });
 
 export const projectMembersByUserIdSchema = z.object({
     userId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The userId must be a valid uuid")
 });
 

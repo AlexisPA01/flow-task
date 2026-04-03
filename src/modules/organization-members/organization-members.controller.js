@@ -49,7 +49,6 @@ export const deleteOrganiationMemberById = async (req, res, next) => {
 
         const result = await organizationMemberService.deleteOrganiationMemberById(parsed.data.id);
 
-
         if (result.deletedCount === 0) {
             throw new AppError(
                 "No organization member found with this ID",

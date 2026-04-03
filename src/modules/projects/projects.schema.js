@@ -14,9 +14,9 @@ export const createProjectSchema = z.object({
         .min(20, "The description must be at least 20 characters long")
         .max(250, "The description must have a maximum of 250 characters."),
     organizationId: z
-        .uuid("The id must be a valid uuid"),
+        .uuid("The organizationId must be a valid uuid"),
     createdBy: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The createdBy must be a valid uuid")
 });
 
 export const updateProjectSchema = z.object({
@@ -54,10 +54,10 @@ export const projectByIdSchema = z.object({
 
 export const projectsByOrganizationIdSchema = z.object({
     organizationId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The organizationId must be a valid uuid")
 });
 
 export const projectsByUserIdSchema = z.object({
     userId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The userId must be a valid uuid")
 });

@@ -11,19 +11,17 @@ export const getTasks = async () => {
 
 export const createTask = async ({ title, description, projectId, assigneeId, reporterId, priorityId, dueDate }) => {
     try {
-        if (assigneeId !== undefined) {
-            const userAssignee = await userRepository.getUserById(assigneeId);
-            if (!userAssignee) {
-                throw new AppError(
-                    "User does not exist",
-                    404,
-                    "USER_NOT_FOUND",
-                    {
-                        field: "assigneeId",
-                        issue: "not_found"
-                    }
-                );
-            }
+        const userAssignee = await userRepository.getUserById(assigneeId);
+        if (!userAssignee) {
+            throw new AppError(
+                "User does not exist",
+                404,
+                "USER_NOT_FOUND",
+                {
+                    field: "assigneeId",
+                    issue: "not_found"
+                }
+            );
         }
 
         const userreporter = await userRepository.getUserById(reporterId);

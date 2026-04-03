@@ -6,7 +6,7 @@ export const createOrganizationSchema = z.object({
         .trim()
         .max(50, "Name too large"),
     ownerId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The ownerId must be a valid uuid")
 });
 
 export const updateOrganizationSchema = z.object({
@@ -16,7 +16,7 @@ export const updateOrganizationSchema = z.object({
         .max(50, "Name too large")
         .optional(),
     ownerId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The ownerId must be a valid uuid")
         .optional()
 }).refine(
     (data) => {

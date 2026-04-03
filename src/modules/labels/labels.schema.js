@@ -12,7 +12,7 @@ export const createLabelSchema = z.object({
         .min(3, "Color of at least 3 characters")
         .max(100, "Color too large"),
     organizationId: z.
-        uuid("The id must be a valid uuid")
+        uuid("The organizationId must be a valid uuid")
 });
 
 export const updateLabelSchema = z.object({
@@ -46,5 +46,5 @@ export const labelByIdSchema = z.object({
 
 export const labelByOrganizationIdSchema = z.object({
     organizationId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The organizationId must be a valid uuid")
 });

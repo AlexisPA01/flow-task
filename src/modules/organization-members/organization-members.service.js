@@ -1,6 +1,7 @@
 import * as organizationMemberRepository from "./organization-members.repository.js";
 import * as userRepository from "../users/user.repository.js";
 import * as organizationRepository from "../organizations/organizations.repository.js";
+import * as roleRepository from "../role/role.repository.js";
 import { AppError, mapDatabaseError } from "../../middleware/middleware.js";
 
 export const getOrganiationMembers = async () => {
@@ -30,6 +31,19 @@ export const createOrganiationMembers = async ({ organizationId, userId, roleId 
                 "ORGANIZATION_NOT_FOUND",
                 {
                     field: "organizationId",
+                    issue: "not_found"
+                }
+            );
+        }
+
+        const role = await roleRepository.getRoleById(roleId);
+        if (!role) {
+            throw new AppError(
+                "Role does not exist",
+                404,
+                "ROLE_NOT_FOUND",
+                {
+                    field: "roleId",
                     issue: "not_found"
                 }
             );

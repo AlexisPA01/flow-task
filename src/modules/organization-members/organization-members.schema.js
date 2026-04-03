@@ -2,11 +2,11 @@ import { z } from "zod";
 
 export const createOrganizationMemberSchema = z.object({
     organizationId: z
-        .uuid("The id must be a valid uuid"),
+        .uuid("The organizationId must be a valid uuid"),
     userId: z
-        .uuid("The id must be a valid uuid"),
+        .uuid("The userId must be a valid uuid"),
     roleId: z
-        .int("The ud must be a valid integer")
+        .int("The roleId must be a valid integer")
 });
 
 export const organiationMemberByIdSchema = z.object({
@@ -16,11 +16,11 @@ export const organiationMemberByIdSchema = z.object({
 
 export const organiationMembersByOrganizationIdSchema = z.object({
     organizationId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The organizationId must be a valid uuid")
 });
 
 export const organiationMembersByUserIdSchema = z.object({
     userId: z
-        .uuid("The id must be a valid uuid")
+        .uuid("The userId must be a valid uuid")
 });
 
