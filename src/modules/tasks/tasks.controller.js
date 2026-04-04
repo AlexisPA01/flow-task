@@ -53,11 +53,10 @@ export const updateTask = async (req, res, next) => {
             throw new AppError("Invalid params", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const task = await tasksService.updateTask(paramsParsed.data.id, bodyParsed.data);
-
-        if (!task) {
-            throw new AppError("Tasks not found", 404, "TASK_NOT_FOUND");
-        }
+        const task = await tasksService.updateTask(
+            paramsParsed.data.id,
+            bodyParsed.data
+        );
 
         return res.status(200).json({
             success: true,
@@ -84,11 +83,10 @@ export const updateTaskStatus = async (req, res, next) => {
             throw new AppError("Invalid params", 400, "VALIDATION_ERROR", flattened.fieldErrors);
         }
 
-        const task = await tasksService.updateTaskStatus(paramsParsed.data.id, bodyParsed.data);
-
-        if (!task) {
-            throw new AppError("Tasks not found", 404, "TASK_NOT_FOUND");
-        }
+        const task = await tasksService.updateTaskStatus(
+            paramsParsed.data.id,
+            bodyParsed.data
+        );
 
         return res.status(200).json({
             success: true,

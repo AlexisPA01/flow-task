@@ -1,8 +1,10 @@
 import * as taskRepository from "./tasks.repository.js";
+import * as taskValidator from "./tasks.validators.js";
 import * as userRepository from "../users/user.repository.js";
 import * as projectRepository from "../projects/projects.repository.js";
 import * as priorityRepository from "../priority/priority.repository.js";
 import * as statusRepository from "../status/status.repository.js";
+import * as taskHistoryRepository from "../task-history/task-history.repository.js";
 import { AppError, mapDatabaseError } from "../../middleware/middleware.js";
 
 export const getTasks = async () => {
@@ -76,58 +78,96 @@ export const createTask = async ({ title, description, projectId, assigneeId, re
     }
 };
 
-export const updateTask = async (id, { title, description, assigneeId, reporterId, priorityId, dueDate }) => {
+export const updateTask = async (id, data) => {
     try {
-        if (assigneeId !== undefined) {
-            const userAssignee = await userRepository.getUserById(assigneeId);
-            if (!userAssignee) {
-                throw new AppError(
-                    "User does not exist",
-                    404,
-                    "USER_NOT_FOUND",
-                    {
-                        field: "assigneeId",
-                        issue: "not_found"
-                    }
-                );
-            }
+        const existingTask = await taskRepository.getTaskById(id);
+
+        if (!existingTask) {
+            throw new AppError("Task not found", 404, "TASK_NOT_FOUND");
         }
 
-        if (reporterId !== undefined) {
-            const userreporter = await userRepository.getUserById(reporterId);
-            if (!userreporter) {
-                throw new AppError(
-                    "User does not exist",
-                    404,
-                    "USER_NOT_FOUND",
-                    {
-                        field: "reporterId",
-                        issue: "not_found"
-                    }
-                );
-            }
-        }
+        const {
+            title,
+            description,
+            assigneeId,
+            reporterId,
+            priorityId,
+            dueDate
+        } = data;
 
-        if (priorityId !== undefined) {
-            const priority = await priorityRepository.getPriorityById(priorityId);
-            if (!priority) {
-                throw new AppError(
-                    "priority does not exist",
-                    404,
-                    "PRIORITY_NOT_FOUND",
-                    {
-                        field: "priorityId",
-                        issue: "not_found"
-                    }
-                );
-            }
-        }
+        await Promise.all([
+            taskValidator.validateUser(assigneeId, "assigneeId"),
+            taskValidator.validateUser(reporterId, "reporterId"),
+            taskValidator.validatePriority(priorityId)
+        ]);
 
-        const project = await taskRepository.updateTask({
-            id, title, description, assigneeId, reporterId, priorityId, dueDate
+        // const changes = [];
+
+        // if (title !== undefined && title !== existingTask.title) {
+        //     changes.push({
+        //         field: "title",
+        //         oldValue: existingTask.title,
+        //         newValue: title
+        //     });
+        // }
+
+        // if (description !== undefined && description !== existingTask.description) {
+        //     changes.push({
+        //         field: "description",
+        //         oldValue: existingTask.description,
+        //         newValue: description
+        //     });
+        // }
+
+        // if (assigneeId !== undefined && assigneeId !== existingTask.assignee_id) {
+        //     changes.push({
+        //         field: "assignee_id",
+        //         oldValue: existingTask.assignee_id,
+        //         newValue: assigneeId
+        //     });
+        // }
+
+        // if (priorityId !== undefined && priorityId !== existingTask.priority_id) {
+        //     changes.push({
+        //         field: "priority_id",
+        //         oldValue: existingTask.priority_id,
+        //         newValue: priorityId
+        //     });
+        // }
+
+        // if (dueDate !== undefined && dueDate !== existingTask.due_date) {
+        //     changes.push({
+        //         field: "due_date",
+        //         oldValue: existingTask.due_date,
+        //         newValue: dueDate
+        //     });
+        // }
+
+        const updatedTask = await taskRepository.updateTask({
+            id,
+            title,
+            description,
+            assigneeId,
+            reporterId,
+            priorityId,
+            dueDate
         });
 
-        return project;
+        // if (changes.length > 0) {
+        //     await Promise.all(
+        //         changes.map(change =>
+        //             taskHistoryRepository.createTaskHistory({
+        //                 field: change.field,
+        //                 oldValue: change.oldValue,
+        //                 newValue: change.newValue,
+        //                 taskId: id,
+        //                 changedId: userId
+        //             })
+        //         )
+        //     );
+        // }
+
+        return updatedTask;
     } catch (error) {
         const mappedError = mapDatabaseError(error);
         if (mappedError) throw mappedError;
@@ -138,20 +178,27 @@ export const updateTask = async (id, { title, description, assigneeId, reporterI
 
 export const updateTaskStatus = async (id, { statusId }) => {
     try {
-        const status = await statusRepository.getStatusById(statusId);
-        if (!status) {
-            throw new AppError(
-                "status does not exist",
-                404,
-                "STATUS_NOT_FOUND",
-                {
-                    field: "statusId",
-                    issue: "not_found"
-                }
-            );
+        const existingTask = await taskRepository.getTaskById(id);
+
+        if (!existingTask) {
+            throw new AppError("Task not found", 404, "TASK_NOT_FOUND");
+        }
+
+        await taskValidator.validateStatus(statusId);
+
+        if (existingTask.status_id === statusId) {
+            return existingTask;
         }
 
         const task = await taskRepository.updateTaskStatus({ id, statusId });
+
+        // await taskHistoryRepository.createTaskHistory({
+        //     field: "status_id",
+        //     oldValue: existingTask.status_id,
+        //     newValue: statusId,
+        //     taskId: id,
+        //     changedId: userId
+        // });
 
         return task;
     } catch (error) {
@@ -161,7 +208,6 @@ export const updateTaskStatus = async (id, { statusId }) => {
         throw error;
     }
 };
-
 
 export const getTaskById = async (id) => {
     try {

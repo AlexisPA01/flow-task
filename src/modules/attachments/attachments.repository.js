@@ -43,7 +43,7 @@ const returningQuery = `
         )
         from users u
         where u.id = attachments.uploaded_by
-    ) as user
+    ) as uploader
 `;
 
 
