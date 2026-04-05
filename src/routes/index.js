@@ -1,5 +1,5 @@
 import { Router } from "express";
-// import activityLogsRoutes from "../modules/activity-logs/activity-logs.routes.js";
+import activityLogsRoutes from "../modules/activity-logs/activity-logs.routes.js";
 import attachmentsRoutes from "../modules/attachments/attachments.routes.js";
 import labelsRoutes from "../modules/labels/labels.routes.js";
 import notificationRoutes from "../modules/notification/notification.routes.js";
@@ -11,7 +11,7 @@ import projectMembersRoutes from "../modules/project-members/project-members.rou
 import projectsRoutes from "../modules/projects/projects.routes.js";
 import roleRoutes from "../modules/role/role.routes.js";
 import statusRoutes from "../modules/status/status.routes.js";
-// import taskCommentsRoutes from "../modules/task-comments/task-comments.routes.js";
+import taskCommentsRoutes from "../modules/task-comments/task-comments.routes.js";
 import taskHistoryRoutes from "../modules/task-history/task-history.routes.js";
 import taskLabelsRoutes from "../modules/task-labels/task-labels.routes.js";
 import tasksRoutes from "../modules/tasks/tasks.routes.js";
@@ -20,7 +20,7 @@ import userRoutes from "../modules/users/user.routes.js";
 
 const router = Router();
 
-// router.use("/activity-logs", activityLogsRoutes);
+router.use("/activity-logs", activityLogsRoutes);
 router.use("/attachments", attachmentsRoutes);
 router.use("/labels", labelsRoutes);
 router.use("/notification", notificationRoutes);
@@ -32,7 +32,7 @@ router.use("/project-members", projectMembersRoutes);
 router.use("/projects", projectsRoutes);
 router.use("/role", roleRoutes);
 router.use("/status", statusRoutes);
-// router.use("/task-comments", taskCommentsRoutes);
+router.use("/task-comments", taskCommentsRoutes);
 router.use("/task-history", taskHistoryRoutes);
 router.use("/task-labels", taskLabelsRoutes);
 router.use("/tasks", tasksRoutes);
