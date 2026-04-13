@@ -1,10 +1,6 @@
 import * as organizationRepository from "./organizations.repository.js";
-import * as userRepository from "../users/user.repository.js";
-import { AppError, mapDatabaseError } from "../../middleware/middleware.js";
-
-export const getOrganizations = async () => {
-    return await organizationRepository.getOrganizations();
-};
+import { validateUserExists } from "../../validators/user.validator.js";
+import { validateOrganizationExists } from "../../validators/organization.validator.js";
 
 const generateSlug = (name) => {
     return name ? name
@@ -20,80 +16,39 @@ const generateSlug = (name) => {
         : undefined;
 }
 
+export const getOrganizations = async () => {
+    return organizationRepository.getOrganizations();
+};
+
 export const createOrganization = async ({ name, ownerId }) => {
-    try {
-        const owner = await userRepository.getUserById(ownerId);
-        if (!owner) {
-            throw new AppError(
-                "Owner does not exist",
-                404,
-                "OWNER_NOT_FOUND",
-                {
-                    field: "ownerId",
-                    issue: "not_found"
-                }
-            );
-        }
+    await validateUserExists(ownerId, "owner_id");
 
-        const slug = generateSlug(name);
+    const slug = generateSlug(name);
 
-        const organization = await organizationRepository.createOrganization({
-            name,
-            slug,
-            ownerId,
-        });
-
-        return organization;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return organizationRepository.createOrganization({
+        name,
+        slug,
+        ownerId,
+    });
 };
 
 export const updateOrganization = async (id, { name, ownerId }) => {
-    try {
-        const owner = await userRepository.getUserById(ownerId);
-        if (ownerId !== undefined) {
-            if (!owner) {
-                throw new AppError(
-                    "Owner does not exist",
-                    404,
-                    "OWNER_NOT_FOUND",
-                    {
-                        field: "ownerId",
-                        issue: "not_found"
-                    }
-                );
-            }
-        }
-
-        const slug = generateSlug(name);
-
-        const organization = await organizationRepository.updateOrganization({
-            id,
-            name,
-            slug,
-            ownerId,
-        });
-
-        return organization;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
+    if (ownerId !== undefined) {
+        await validateUserExists(ownerId, "owner_id");
     }
+
+    await validateOrganizationExists(id);
+
+    const slug = generateSlug(name);
+
+    return organizationRepository.updateOrganization({
+        id,
+        name,
+        slug,
+        ownerId,
+    });
 };
 
 export const getOrganizationById = async (id) => {
-    try {
-        return await organizationRepository.getOrganizationById(id);
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return await validateOrganizationExists(id);
 };

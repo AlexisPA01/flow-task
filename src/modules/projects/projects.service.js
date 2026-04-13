@@ -1,137 +1,52 @@
 import * as projectRepository from "./projects.repository.js";
-import * as userRepository from "../users/user.repository.js";
-import * as organizationRepository from "../organizations/organizations.repository.js";
-import { AppError, mapDatabaseError } from "../../middleware/middleware.js";
-
-export const getProjects = async () => {
-    return await projectRepository.getProjects();
-};
+import { validateUserExists } from "../../validators/user.validator.js";
+import { validateOrganizationExists } from "../../validators/organization.validator.js";
+import { validateProjectExists } from "../../validators/project.validator.js";
 
 const generateKey = (key) => {
     return key ? key.toUpperCase().trim().replaceAll(" ", "") : undefined;
 };
 
+export const getProjects = async () => {
+    return projectRepository.getProjects();
+};
+
 export const createProject = async ({ name, key, description, organizationId, createdBy }) => {
-    try {
-        const user = await userRepository.getUserById(createdBy);
-        if (!user) {
-            throw new AppError(
-                "User does not exist",
-                404,
-                "USER_NOT_FOUND",
-                {
-                    field: "userId",
-                    issue: "not_found"
-                }
-            );
-        }
+    await Promise.all([
+        validateUserExists(createdBy, "created_by"),
+        validateOrganizationExists(organizationId)
+    ]);
 
-        const organization = await organizationRepository.getOrganizationById(organizationId);
-        if (!organization) {
-            throw new AppError(
-                "Organization does not exist",
-                404,
-                "ORGANIZATION_NOT_FOUND",
-                {
-                    field: "organizationId",
-                    issue: "not_found"
-                }
-            );
-        }
+    const keyFormat = generateKey(key);
 
-        const keyFormat = generateKey(key);
-
-        const project = await projectRepository.createProject({
-            name, key: keyFormat, description, organizationId, createdBy
-        });
-
-        return project;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return projectRepository.createProject({
+        name, key: keyFormat, description, organizationId, createdBy
+    });
 };
 
 export const updateProject = async (id, { name, key, description }) => {
-    try {
-        const keyFormat = generateKey(key);
+    await validateProjectExists(id);
 
-        const project = await projectRepository.updateProject({
-            id, name, key: keyFormat, description
-        });
+    const keyFormat = generateKey(key);
 
-        return project;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
+    return projectRepository.updateProject({
+        id, name, key: keyFormat, description
+    });
 
-        throw error;
-    }
 };
 
 export const getProjectById = async (id) => {
-    try {
-        const project = await projectRepository.getProjectById(id);
-
-        return project;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return await validateProjectExists(id);
 };
 
 export const getProjectsByOrganizationId = async (organizationId) => {
-    try {
-        const organization = await organizationRepository.getOrganizationById(organizationId);
-        if (!organization) {
-            throw new AppError(
-                "Organization does not exist",
-                404,
-                "ORGANIZATION_NOT_FOUND",
-                {
-                    field: "organizationId",
-                    issue: "not_found"
-                }
-            );
-        }
+    await validateOrganizationExists(organizationId);
 
-        const project = await projectRepository.getProjectsByOrganizationId(organizationId);
-
-        return project;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return projectRepository.getProjectsByOrganizationId(organizationId);
 };
 
-export const getProjectsByUserId = async (userId) => {
-    try {
-        const user = await userRepository.getUserById(userId);
-        if (!user) {
-            throw new AppError(
-                "Creator does not exist",
-                404,
-                "CREATOR_NOT_FOUND",
-                {
-                    field: "createdBy",
-                    issue: "not_found"
-                }
-            );
-        }
+export const getProjectsByUserId = async (createdBy) => {
+    await validateUserExists(createdBy, "created_by");
 
-        const project = await projectRepository.getProjectsByUserId(userId);
-
-        return project;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return projectRepository.getProjectsByUserId(createdBy);
 };

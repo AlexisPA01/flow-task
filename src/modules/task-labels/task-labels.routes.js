@@ -1,15 +1,16 @@
 import { Router } from "express";
 import * as taskLabelsController from "./task-labels.controller.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
 
 const router = Router();
 
-router.get("/", taskLabelsController.getTaskLabels);
-router.post("/", taskLabelsController.createTaskLabel);
-router.delete("/by-primary-key/:taskId/:labelId", taskLabelsController.deleteTaskLabelByPrimaryKey);
-router.delete("/by-task/:taskId", taskLabelsController.deleteTaskLabelByTaskId);
-router.delete("/by-label/:labelId", taskLabelsController.deleteTaskLabelByLabelId);
-router.get("/by-primary-key/:taskId/:labelId", taskLabelsController.getTaskLabelByPrimaryKey);
-router.get("/by-task/:taskId", taskLabelsController.getTaskLabelByTaskId);
-router.get("/by-label/:labelId", taskLabelsController.getTaskLabelByLabelId);
+router.get("/", asyncHandler(taskLabelsController.getTaskLabels));
+router.post("/", asyncHandler(taskLabelsController.createTaskLabel));
+router.delete("/by-primary-key/:taskId/:labelId", asyncHandler(taskLabelsController.deleteTaskLabelByPrimaryKey));
+router.delete("/by-task/:taskId", asyncHandler(taskLabelsController.deleteTaskLabelByTaskId));
+router.delete("/by-label/:labelId", asyncHandler(taskLabelsController.deleteTaskLabelByLabelId));
+router.get("/by-primary-key/:taskId/:labelId", asyncHandler(taskLabelsController.getTaskLabelByPrimaryKey));
+router.get("/by-task/:taskId", asyncHandler(taskLabelsController.getTaskLabelByTaskId));
+router.get("/by-label/:labelId", asyncHandler(taskLabelsController.getTaskLabelByLabelId));
 
 export default router;

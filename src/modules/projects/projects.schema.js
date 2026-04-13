@@ -58,6 +58,6 @@ export const projectsByOrganizationIdSchema = z.object({
 });
 
 export const projectsByUserIdSchema = z.object({
-    userId: z
-        .uuid("The userId must be a valid uuid")
+    createdBy: z
+        .uuid("The createdBy must be a valid uuid")
 });

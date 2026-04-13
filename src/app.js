@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 
 import routes from "./routes/index.js";
-import { errorHandler } from "./middleware/middleware.js";
+import { errorHandler } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -16,9 +16,16 @@ app.use(helmet());
 // rutas
 app.use("/api/", routes);
 
-app.use(errorHandler);
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        error: {
+            code: "ROUTE_NOT_FOUND",
+            message: "Route not found"
+        }
+    });
+});
 
-// middleware de errores
-//app.use(errorHandler);
+app.use(errorHandler);
 
 export default app;

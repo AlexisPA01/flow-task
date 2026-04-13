@@ -1,129 +1,45 @@
 import * as notificationRepository from "./notification.repository.js";
-import * as userRepository from "../users/user.repository.js";
-import * as notificatonTypeRepository from "../notification-type/notification-type.repository.js";
-import { AppError, mapDatabaseError } from "../../middleware/middleware.js";
+import { validateUserExists } from "../../validators/user.validator.js";
+import { validateNotificationTypeExists } from "../../validators/notification-type.validator.js";
+import { validateNotificationExists } from "../../validators/notification.validator.js";
 
 export const getNotifications = async () => {
-    return await notificationRepository.getNotifications();
+    return notificationRepository.getNotifications();
 };
 
 export const createNotification = async ({ title, message, userId, typeId }) => {
-    try {
-        const user = await userRepository.getUserById(userId);
-        if (!user) {
-            throw new AppError(
-                "User does not exist",
-                404,
-                "USER_NOT_FOUND",
-                {
-                    field: "userId",
-                    issue: "not_found"
-                }
-            );
-        }
+    await Promise.all([
+        validateUserExists(userId),
+        validateNotificationTypeExists(typeId)
+    ]);
 
-        const type = await notificatonTypeRepository.getNotificationTypeById(typeId);
-        if (!type) {
-            throw new AppError(
-                "Notification Type does not exist",
-                404,
-                "NOTIFICATION_TYPE_NOT_FOUND",
-                {
-                    field: "tpyeId",
-                    issue: "not_found"
-                }
-            );
-        }
-
-        const notification = await notificationRepository.createNotification({
-            title,
-            message,
-            userId,
-            typeId
-        });
-
-        return notification;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return notificationRepository.createNotification({
+        title,
+        message,
+        userId,
+        typeId
+    });
 };
 
 export const updateNotificationStatus = async (id) => {
-    try {
-        const notification = await notificationRepository.updateNotificationStatus(id);
+    await validateNotificationExists(id);
 
-        return notification;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return notificationRepository.updateNotificationStatus(id);
 };
 
 export const getNotificationById = async (id) => {
-    try {
-        return await notificationRepository.getNotificationById(id);
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return await validateNotificationExists(id);
 };
 
 export const getNotificationsByUserId = async (userId) => {
-    try {
-        const user = await userRepository.getUserById(userId);
-        if (!user) {
-            throw new AppError(
-                "User does not exist",
-                404,
-                "USER_NOT_FOUND",
-                {
-                    field: "userId",
-                    issue: "not_found"
-                }
-            );
-        }
+    await validateUserExists(userId);
 
-        const notification = await notificationRepository.getNotificationsByUserId(userId);
-
-        return notification;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return notificationRepository.getNotificationsByUserId(userId);
 };
 
 
 export const getNotificationsByTypeId = async (typeId) => {
-    try {
-        const type = await notificatonTypeRepository.getNotificationTypeById(typeId);
-        if (!type) {
-            throw new AppError(
-                "Notification Type does not exist",
-                404,
-                "NOTIFICATION_TYPE_NOT_FOUND",
-                {
-                    field: "tpyeId",
-                    issue: "not_found"
-                }
-            );
-        }
+    await validateNotificationTypeExists(typeId);
 
-        const notification = await notificationRepository.getNotificationsByTypeId(userId);
-
-        return notification;
-    } catch (error) {
-        const mappedError = mapDatabaseError(error);
-        if (mappedError) throw mappedError;
-
-        throw error;
-    }
+    return notificationRepository.getNotificationsByTypeId(userId);
 };
