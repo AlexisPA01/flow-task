@@ -134,3 +134,23 @@ export const updateManyStatusUser = async (req, res) => {
         },
     });
 };
+
+export const login = async (req, res) => {
+    const parsed = userSchemas.loginSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+        const flattened = z.flattenError(parsed.error);
+        throw new BadRequestError(
+            "Invalid data",
+            flattened.fieldErrors
+        );
+    }
+
+    const user = await userService.login(parsed.data);
+
+    return res.status(201).json({
+        success: true,
+        message: "User logged-in successfully",
+        data: user
+    });
+};

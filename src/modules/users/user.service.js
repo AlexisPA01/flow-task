@@ -1,6 +1,11 @@
 import bcrypt from "bcrypt";
+import jwt from 'jsonwebtoken';
 import * as userRepository from "./user.repository.js";
 import { validateUserEmailExists, validateUserExists } from "../../validators/user.validator.js";
+import { UnauthorizedError } from "../../errors/unauthorized.error.js";
+import { env } from "../../config/env.js";
+
+const saltRounds = 10;
 
 export const getUsers = async () => {
     return userRepository.getUsers();
@@ -9,7 +14,7 @@ export const getUsers = async () => {
 export const createUser = async ({ email, password, avatarUrl }) => {
     await validateUserEmailExists(email);
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, saltRounds);
 
     return userRepository.createUser({
         email,
@@ -56,4 +61,51 @@ export const updateManyStatusUser = async (users) => {
     );
 
     return await userRepository.updateManyStatusUser(updates);
+};
+
+const generateAccessToken = (user) => {
+    return jwt.sign(
+        {
+            userId: user.id,
+        },
+        env.secretJWT,
+        {
+            expiresIn: "15m",
+        }
+    );
+};
+
+const generateRefreshToken = (user) => {
+    return jwt.sign(
+        {
+            userId: user.id,
+        },
+        env.refreshSecretJWT,
+        {
+            expiresIn: "7d",
+        }
+    );
+};
+
+export const login = async ({ email, password }) => {
+    const user = await validateUserEmailExists(email);
+
+    const passwordCheck = await bcrypt.compare(password, user.password_hash);
+
+    if (!passwordCheck) {
+        throw new UnauthorizedError(
+            "Email or password wrong",
+            { email, password }
+        );
+    }
+
+    const refreshToken = generateRefreshToken(user);
+    const accessToken = generateAccessToken(user);
+
+    await userRepository.saveRefreshToken(user.id, refreshToken);
+
+    return {
+        accessToken,
+        refreshToken
+    }
 };

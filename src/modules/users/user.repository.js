@@ -1,7 +1,7 @@
 import { db } from "../../config/database.js";
 
 export const getUsers = async () => {
-    const result = await db.query("select id, email, avatar_url, is_active from users");
+    const result = await db.query("select id, email, avatar_url, is_active, refresh_token from users");
 
     return result.rows;
 };
@@ -76,4 +76,21 @@ export const updateManyStatusUser = async (users) => {
     );
 
     return result.rows;
+};
+
+export const saveRefreshToken = async (id, refreshToken) => {
+    const result = await db.query(
+        `update users set refresh_token = $1, updated_at = now() where id = $2`, [refreshToken, id]
+    );
+
+    return result.rows[0];
+};
+
+export const getRefreshToken = async (id) => {
+    const result = await db.query(
+        "select refresh_token from users where id = $1",
+        [id]
+    );
+
+    return result.rows[0].refresh_token;
 };
