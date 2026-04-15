@@ -1,6 +1,7 @@
 import { db } from "../../config/database.js";
 
-const selectQuery = `select 
+const selectQuery = `
+    select 
         p.id, 
         p.name,
         p.key,
@@ -16,7 +17,33 @@ const selectQuery = `select
         ) as creator
     from projects p
     inner join organizations o on p.organization_id = o.id 
-    inner join users u on p.created_by = u.id`
+    inner join users u on p.created_by = u.id
+`;
+
+const returningQuery = `
+    returning 
+        projects.id, 
+        projects.name,
+        projects.key,
+        projects.description,
+    (
+        select json_build_object(
+            'id', o.id, 
+            'name', o.name, 
+            'slug', o.slug
+        )
+        from organizations o
+        where o.id = projects.organization_id
+    ) as organization,
+    (
+        select json_build_object(
+            'id', u.id, 
+            'email', u.email
+        )
+        from users u
+        where u.id = projects.created_by
+    ) as creator
+`;
 
 export const getProjects = async () => {
     const result = await db.query(selectQuery);
@@ -27,8 +54,8 @@ export const getProjects = async () => {
 export const createProject = async ({ name, key, description, organizationId, createdBy }) => {
     const result = await db.query(
         `insert into projects (name, key, description, organization_id, created_by)
-     values ($1, $2, $3, $4, $5)
-     returning id, name, key, description, organization_id, created_by, created_at`,
+        values ($1, $2, $3, $4, $5)
+        ${returningQuery}`,
         [name, key, description || null, organizationId, createdBy]
     );
 
@@ -38,7 +65,7 @@ export const createProject = async ({ name, key, description, organizationId, cr
 export const updateProject = async ({ id, name, key, description }) => {
     const result = await db.query(
         `update projects set name = COALESCE($1, name), key = COALESCE($2, key), description = COALESCE($3, description), updated_at = now() where id = $4
-        returning id, name, key, description, updated_at`,
+        ${returningQuery}`,
         [name || null, key || null, description || null, id]
     );
 

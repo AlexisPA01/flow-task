@@ -18,7 +18,8 @@ const selectQuery = `
         ) as uploader
     from attachments a
     inner join tasks t on a.task_id = t.id 
-    inner join users u on a.uploaded_by = u.id`;
+    inner join users u on a.uploaded_by = u.id
+`;
 
 const returningQuery = `
     returning 
@@ -46,7 +47,6 @@ const returningQuery = `
     ) as uploader
 `;
 
-
 export const getAttachments = async () => {
     const result = await db.query(selectQuery);
 
@@ -56,8 +56,8 @@ export const getAttachments = async () => {
 export const createAttachment = async ({ fileUrl, fileName, taskId, uploaderId }) => {
     const result = await db.query(
         `insert into attachments (file_url, file_name, task_id, uploaded_by)
-     values ($1, $2, $3, $4)
-     ${returningQuery}`,
+        values ($1, $2, $3, $4)
+        ${returningQuery}`,
         [fileUrl, fileName, taskId, uploaderId]
     );
 

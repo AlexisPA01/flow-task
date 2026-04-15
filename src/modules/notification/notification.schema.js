@@ -27,6 +27,7 @@ export const notificationsByUserIdSchema = z.object({
 
 export const notificationsByTypeIdSchema = z.object({
     typeId: z
+        .coerce.number()
         .int("The typeId must be a valid integer")
 });
 

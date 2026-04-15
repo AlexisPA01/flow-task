@@ -1,6 +1,7 @@
 import { db } from "../../config/database.js";
 
-const selectQuery = `select 
+const selectQuery = `
+    select 
         om.id, 
         om.joined_at,
         json_build_object(
@@ -19,7 +20,39 @@ const selectQuery = `select
     from organization_members om
     inner join organizations o on om.organization_id = o.id 
     inner join users u on om.user_id = u.id
-    inner join role r on om.role_id = r.id`
+    inner join role r on om.role_id = r.id
+`;
+
+const returningQuery = `
+    returning 
+        organization_members.id, 
+        organization_members.joined_at,
+    (
+        select json_build_object(
+            'id', o.id, 
+            'name', o.name, 
+            'slug', o.slug
+        )
+        from organizations o
+        where o.id = organization_members.organization_id
+    ) as organization,
+    (
+        select json_build_object(
+            'id', u.id, 
+            'email', u.email
+        )
+        from users u
+        where u.id = organization_members.user_id
+    ) as user,
+    (
+        select json_build_object(
+            'id', r.id, 
+            'name', r.name
+        )
+        from role r
+        where r.id = organization_members.role_id
+    ) as role
+`;
 
 export const getOrganiationMembers = async () => {
     const result = await db.query(selectQuery);
@@ -30,8 +63,8 @@ export const getOrganiationMembers = async () => {
 export const createOrganiationMembers = async ({ organizationId, userId, roleId }) => {
     const result = await db.query(
         `insert into organization_members (organization_id, user_id, role_id)
-     values ($1, $2, $3)
-     returning id, organization_id, user_id, role_id, joined_at`,
+        values ($1, $2, $3)
+        ${returningQuery}`,
         [organizationId, userId, roleId]
     );
 

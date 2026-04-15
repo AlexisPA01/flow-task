@@ -41,5 +41,5 @@ export const getNotificationsByUserId = async (userId) => {
 export const getNotificationsByTypeId = async (typeId) => {
     await validateNotificationTypeExists(typeId);
 
-    return notificationRepository.getNotificationsByTypeId(userId);
+    return notificationRepository.getNotificationsByTypeId(typeId);
 };

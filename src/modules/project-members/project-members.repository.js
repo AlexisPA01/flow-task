@@ -1,6 +1,7 @@
 import { db } from "../../config/database.js";
 
-const selectQuery = `select 
+const selectQuery = `
+    select 
         pm.id, 
         pm.joined_at,
         json_build_object(
@@ -15,7 +16,30 @@ const selectQuery = `select
         ) as user
     from project_members pm
     inner join projects p on pm.project_id = p.id 
-    inner join users u on pm.user_id = u.id`
+    inner join users u on pm.user_id = u.id
+`;
+
+const returningQuery = `
+    returning 
+    (
+        select json_build_object(
+            'id', p.id, 
+            'name', p.name, 
+            'key', p.key,
+            'description', p.description
+        )
+        from projects p
+        where p.id = project_members.project_id
+    ) as project,
+    (
+        select json_build_object(
+            'id', u.id, 
+            'email', u.email
+        )
+        from users u
+        where u.id = project_members.user_id
+    ) as user
+`;
 
 export const getProjectMembers = async () => {
     const result = await db.query(selectQuery);
@@ -26,8 +50,8 @@ export const getProjectMembers = async () => {
 export const createProjectMembers = async ({ projectId, userId }) => {
     const result = await db.query(
         `insert into project_members (project_id, user_id)
-     values ($1, $2)
-     returning id, project_id, user_id, joined_at`,
+        values ($1, $2)
+        ${returningQuery}`,
         [projectId, userId]
     );
 

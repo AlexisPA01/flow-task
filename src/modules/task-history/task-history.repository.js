@@ -44,10 +44,9 @@ const returningQuery = `
             'email', u.email
         )
         from users u
-        where u.id = task_history.uploaded_by
+        where u.id = task_history.changed_by
     ) as changer
 `;
-
 
 export const getTaskHistories = async () => {
     const result = await db.query(selectQuery);

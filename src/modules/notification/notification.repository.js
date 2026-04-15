@@ -1,11 +1,12 @@
 import { db } from "../../config/database.js";
 
-const selectQuery = `select 
+const selectQuery = `
+    select 
         n.id, 
         n.title,
         n.message,
         n.is_read,
-        m.created_at,
+        n.created_at,
         json_build_object(
             'id', u.id, 
             'email', u.email
@@ -16,7 +17,33 @@ const selectQuery = `select
         ) as notification_type
     from notification n
     inner join users u on n.user_id = u.id
-    inner join notification_type nt on n.type_id = nt.id`
+    inner join notification_type nt on n.type_id = nt.id
+`;
+
+const returningQuery = `
+    returning 
+        notification.id, 
+        notification.title,
+        notification.message,
+        notification.is_read,
+        notification.created_at,
+    (
+        select json_build_object(
+            'id', u.id, 
+            'email', u.email
+        )
+        from users u
+        where u.id = notification.user_id
+    ) as user,
+    (
+        select json_build_object(
+            'id', nt.id, 
+            'name', nt.name
+        )
+        from notification_type nt
+        where nt.id = notification.type_id
+    ) as notification_type
+`;
 
 export const getNotifications = async () => {
     const result = await db.query(selectQuery);
@@ -27,8 +54,8 @@ export const getNotifications = async () => {
 export const createNotification = async ({ title, message, userId, typeId }) => {
     const result = await db.query(
         `insert into notification (title, message, user_id, type_id)
-     values ($1, $2, $3, $4)
-     returning title, message, is_read, user_id, type_id, created_at`,
+        values ($1, $2, $3, $4)
+        ${returningQuery}`,
         [title, message, userId, typeId]
     );
 
@@ -38,7 +65,7 @@ export const createNotification = async ({ title, message, userId, typeId }) => 
 export const updateNotificationStatus = async (id) => {
     const result = await db.query(
         `update notification set is_read = true where id = $1
-        returning title, message, is_read, user_id, type_id, created_at`,
+        ${returningQuery}`,
         [id]
     );
 

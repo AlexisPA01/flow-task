@@ -1,6 +1,7 @@
 import { db } from "../../config/database.js";
 
-const selectQuery = `select 
+const selectQuery = `
+    select 
         t.id, 
         t.title,
         t.description,
@@ -16,7 +17,7 @@ const selectQuery = `select
         json_build_object(
             'id', ua.id, 
             'email', ua.email
-        ) as assigneed,
+        ) as assignee,
         json_build_object(
             'id', ur.id, 
             'email', ur.email
@@ -34,7 +35,60 @@ const selectQuery = `select
     inner join users ua on t.assignee_id = ua.id
     inner join users ur on t.reporter_id = ur.id
     inner join status s on t.status_id = s.id
-    inner join priority pr on t.priority_id = pr.id`
+    inner join priority pr on t.priority_id = pr.id
+`;
+
+const returningQuery = `
+    returning 
+        tasks.id, 
+        tasks.title,
+        tasks.description,
+        tasks.due_date,
+        tasks.created_at,
+        tasks.updated_at,
+    (
+        select json_build_object(
+            'id', p.id, 
+            'name', p.name, 
+            'key', p.key,
+            'description', p.description
+        )
+        from projects p
+        where p.id = tasks.project_id
+    ) as project,
+    (
+        select json_build_object(
+            'id', ua.id, 
+            'email', ua.email
+        )
+        from users ua
+        where ua.id = tasks.assignee_id
+    ) as assignee,
+    (
+        select json_build_object(
+            'id', ur.id, 
+            'email', ur.email
+        )
+        from users ur
+        where ur.id = tasks.reporter_id
+    ) as reporter,
+    (
+        select json_build_object(
+            'id', s.id, 
+            'name', s.name
+        )
+        from status s
+        where s.id = tasks.status_id
+    ) as status,
+    (
+        select json_build_object(
+            'id', pr.id, 
+            'name', pr.name
+        )
+        from priority pr
+        where pr.id = tasks.priority_id
+    ) as priority
+`;
 
 export const getTasks = async () => {
     const result = await db.query(selectQuery);
@@ -47,7 +101,7 @@ export const createTask = async ({ title, description, projectId, assigneeId, re
         `insert into tasks 
         (title, description, project_id, assignee_id, reporter_id, status_id, priority_id, due_date)
         values ($1, $2, $3, $4, $5, $6, $7, $8)
-        returning id, title, description, project_id, assignee_id, reporter_id, status_id, priority_id, due_date, created_at`,
+        ${returningQuery}`,
         [title, description || null, projectId, assigneeId || null, reporterId, 1, priorityId, dueDate || null]
     );
 
@@ -64,7 +118,7 @@ export const updateTask = async ({ id, title, description, assigneeId, reporterI
         priority_id = COALESCE($5, priority_id), 
         due_date = COALESCE($6, due_date), 
         updated_at = now() where id = $7
-        returning id, title, description, project_id, assignee_id, reporter_id, status_id, priority_id, due_date, created_at, updated_at`,
+        ${returningQuery}`,
         [title || null, description || null, assigneeId || null, reporterId || null, priorityId || null, dueDate || null, id]
     );
 
@@ -74,7 +128,7 @@ export const updateTask = async ({ id, title, description, assigneeId, reporterI
 export const updateTaskStatus = async ({ id, statusId }) => {
     const result = await db.query(
         `update tasks set status_id = $1, updated_at = now() where id = $2
-        returning id, title, description, project_id, assignee_id, reporter_id, status_id, priority_id, due_date, created_at, updated_at`,
+        ${returningQuery}`,
         [statusId, id]
     );
 

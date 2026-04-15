@@ -1,6 +1,7 @@
 import { db } from "../../config/database.js";
 
-const selectQuery = `select 
+const selectQuery = `
+    select 
         al.id, 
         al.action,
         al.entity_type,
@@ -17,7 +18,34 @@ const selectQuery = `select
         ) as creator
     from activity_logs al
     inner join organizations o on al.organization_id = o.id 
-    inner join users u on al.user_id = u.id`
+    inner join users u on al.user_id = u.id
+`;
+
+const returningQuery = `
+    returning 
+        activity_logs.id, 
+        activity_logs.action,
+        activity_logs.entity_type,
+        activity_logs.entity_id,
+        activity_logs.metadata,
+    (
+        select json_build_object(
+            'id', o.id, 
+            'name', o.name, 
+            'slug', o.slug
+        )
+        from organizations o
+        where o.id = activity_logs.organization_id
+    ) as organization,
+    (
+        select json_build_object(
+            'id', u.id, 
+            'email', u.email
+        )
+        from users u
+        where u.id = activity_logs.user_id
+    ) as user
+`;
 
 export const getActivityLogs = async () => {
     const result = await db.query(selectQuery);
@@ -28,8 +56,8 @@ export const getActivityLogs = async () => {
 export const createActivityLog = async ({ action, entityType, entityId, metadata, organizationId, userId }) => {
     const result = await db.query(
         `insert into activity_logs (action, entity_type, entity_id, metadata, organization_id, user_id)
-     values ($1, $2, $3, $4, $5)
-     returning id, action, entity_type, entity_id, metadata, organization_id, user_id, created_at`,
+        values ($1, $2, $3, $4, $5)
+        ${returningQuery}`,
         [action, entityType, entityId, metadata, organizationId, userId]
     );
 

@@ -23,7 +23,7 @@ export const createTask = async ({ title, description, projectId, assigneeId, re
     });
 };
 
-export const updateTask = async (id, data) => {
+export const updateTask = async (id, data, userId) => {
     const existingTask = await validateTaskExists(id);
 
     const {
@@ -35,47 +35,56 @@ export const updateTask = async (id, data) => {
         dueDate
     } = data;
 
-    // const changes = [];
+    const changes = [];
 
-    // if (title !== undefined && title !== existingTask.title) {
-    //     changes.push({
-    //         field: "title",
-    //         oldValue: existingTask.title,
-    //         newValue: title
-    //     });
-    // }
+    if (title !== undefined && title !== existingTask.title) {
+        changes.push({
+            field: "title",
+            oldValue: { title: existingTask.title },
+            newValue: { title }
+        });
+    }
 
-    // if (description !== undefined && description !== existingTask.description) {
-    //     changes.push({
-    //         field: "description",
-    //         oldValue: existingTask.description,
-    //         newValue: description
-    //     });
-    // }
+    if (description !== undefined && description !== existingTask.description) {
+        changes.push({
+            field: "description",
+            oldValue: { description: existingTask.description },
+            newValue: { description }
+        });
+    }
 
-    // if (assigneeId !== undefined && assigneeId !== existingTask.assignee_id) {
-    //     changes.push({
-    //         field: "assignee_id",
-    //         oldValue: existingTask.assignee_id,
-    //         newValue: assigneeId
-    //     });
-    // }
+    if (assigneeId !== undefined && assigneeId !== existingTask.assignee.id) {
+        changes.push({
+            field: "assignee_id",
+            oldValue: { assignee_id: existingTask.assignee.id },
+            newValue: { assignee_id: assigneeId },
+        });
+    }
 
-    // if (priorityId !== undefined && priorityId !== existingTask.priority_id) {
-    //     changes.push({
-    //         field: "priority_id",
-    //         oldValue: existingTask.priority_id,
-    //         newValue: priorityId
-    //     });
-    // }
+    if (reporterId !== undefined && reporterId !== existingTask.reporter.id) {
+        changes.push({
+            field: "reporter_id",
+            oldValue: { reporter_id: existingTask.reporter.id },
+            newValue: { reporter_id: reporterId },
+        });
+    }
 
-    // if (dueDate !== undefined && dueDate !== existingTask.due_date) {
-    //     changes.push({
-    //         field: "due_date",
-    //         oldValue: existingTask.due_date,
-    //         newValue: dueDate
-    //     });
-    // }
+    if (priorityId !== undefined && priorityId !== existingTask.priority.id) {
+        changes.push({
+            field: "priority_id",
+            oldValue: { priority_id: existingTask.priority.id },
+            newValue: { priority_id: priorityId }
+        });
+    }
+
+    if (dueDate !== undefined &&
+        new Date(dueDate).getTime() !== new Date(existingTask.due_date).getTime()) {
+        changes.push({
+            field: "due_date",
+            oldValue: { due_date: existingTask.due_date },
+            newValue: { due_date: dueDate }
+        });
+    }
 
     const updatedTask = await taskRepository.updateTask({
         id,
@@ -87,33 +96,43 @@ export const updateTask = async (id, data) => {
         dueDate
     });
 
-    // if (changes.length > 0) {
-    //     await Promise.all(
-    //         changes.map(change =>
-    //             taskHistoryRepository.createTaskHistory({
-    //                 field: change.field,
-    //                 oldValue: change.oldValue,
-    //                 newValue: change.newValue,
-    //                 taskId: id,
-    //                 changedId: userId
-    //             })
-    //         )
-    //     );
-    // }
+    if (changes.length > 0) {
+        await Promise.all(
+            changes.map(change =>
+                taskHistoryRepository.createTaskHistory({
+                    field: change.field,
+                    oldValue: change.oldValue,
+                    newValue: change.newValue,
+                    taskId: id,
+                    changedId: userId
+                })
+            )
+        );
+    }
 
     return updatedTask;
 };
 
-export const updateTaskStatus = async (id, { statusId }) => {
-    const task = await validateTaskExists(id);
+export const updateTaskStatus = async (id, { statusId }, userId) => {
+    const taskCheck = await validateTaskExists(id);
 
     await validateStatusExists(statusId);
 
-    if (task.status_id === statusId) {
-        return task;
+    if (taskCheck.status_id === statusId) {
+        return taskCheck;
     }
 
-    return taskRepository.updateTaskStatus({ id, statusId });
+    const task = await taskRepository.updateTaskStatus({ id, statusId });
+
+    await taskHistoryRepository.createTaskHistory({
+        field: "status_id",
+        oldValue: { status_id: taskCheck.status.id },
+        newValue: { status_id: task.status.id },
+        taskId: id,
+        changedId: userId
+    })
+
+    return task;
 };
 
 export const getTaskById = async (id) => {

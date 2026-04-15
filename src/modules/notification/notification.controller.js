@@ -34,7 +34,7 @@ export const createNotification = async (req, res) => {
 };
 
 export const updateNotificationStatus = async (req, res) => {
-    const parsed = notificationSchema.notificationByIdSchema.safeParse(req.body);
+    const parsed = notificationSchema.notificationByIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);
@@ -84,7 +84,7 @@ export const getNotificationsByUserId = async (req, res) => {
         );
     }
 
-    const notifications = await notificationService.getNotificationsByUserId(parsed.data.organizationId);
+    const notifications = await notificationService.getNotificationsByUserId(parsed.data.userId);
 
     if (notifications.length === 0) {
         return res.status(200).json({
@@ -112,7 +112,7 @@ export const getNotificationsByTypeId = async (req, res) => {
         );
     }
 
-    const notifications = await notificationService.getNotificationsByTypeId(parsed.data.organizationId);
+    const notifications = await notificationService.getNotificationsByTypeId(parsed.data.typeId);
 
     if (notifications.length === 0) {
         return res.status(200).json({

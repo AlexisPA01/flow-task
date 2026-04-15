@@ -55,7 +55,8 @@ export const updateTask = async (req, res) => {
 
     const task = await tasksService.updateTask(
         paramsParsed.data.id,
-        bodyParsed.data
+        bodyParsed.data,
+        req.user.userId
     );
 
     return res.status(200).json({
@@ -87,7 +88,8 @@ export const updateTaskStatus = async (req, res) => {
 
     const task = await tasksService.updateTaskStatus(
         paramsParsed.data.id,
-        bodyParsed.data
+        bodyParsed.data,
+        req.user.userId
     );
 
     return res.status(200).json({
