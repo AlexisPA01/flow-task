@@ -54,13 +54,13 @@ const returningQuery = `
     ) as role
 `;
 
-export const getOrganiationMembers = async () => {
+export const getOrganizationMembers = async () => {
     const result = await db.query(selectQuery);
 
     return result.rows;
 };
 
-export const createOrganiationMembers = async ({ organizationId, userId, roleId }) => {
+export const createOrganizationMembers = async ({ organizationId, userId, roleId }) => {
     const result = await db.query(
         `insert into organization_members (organization_id, user_id, role_id)
         values ($1, $2, $3)
@@ -71,7 +71,7 @@ export const createOrganiationMembers = async ({ organizationId, userId, roleId 
     return result.rows[0];
 };
 
-export const deleteOrganiationMemberById = async (id) => {
+export const deleteOrganizationMemberById = async (id) => {
     const result = await db.query(
         `delete from organization_members where id = $1`,
         [id]
@@ -80,7 +80,7 @@ export const deleteOrganiationMemberById = async (id) => {
     return result.rowCount;
 };
 
-export const deleteOrganiationMembersByOrganizationId = async (organizationId) => {
+export const deleteOrganizationMembersByOrganizationId = async (organizationId) => {
     const result = await db.query(
         `delete from organization_members where organization_id = $1`,
         [organizationId]
@@ -89,7 +89,7 @@ export const deleteOrganiationMembersByOrganizationId = async (organizationId) =
     return result.rowCount;
 };
 
-export const deleteOrganiationMembersByUserId = async (userId) => {
+export const deleteOrganizationMembersByUserId = async (userId) => {
     const result = await db.query(
         `delete from organization_members where user_id = $1`,
         [userId]
@@ -98,19 +98,19 @@ export const deleteOrganiationMembersByUserId = async (userId) => {
     return result.rowCount;
 };
 
-export const getOrganiationMemberById = async (id) => {
+export const getOrganizationMemberById = async (id) => {
     const result = await db.query(`${selectQuery} where om.id = $1`, [id]);
 
     return result.rows[0];
 };
 
-export const getOrganiationMembersByOrganizationId = async (organizationId) => {
+export const getOrganizationMembersByOrganizationId = async (organizationId) => {
     const result = await db.query(`${selectQuery} where om.organization_id = $1`, [organizationId]);
 
     return result.rows;
 };
 
-export const getOrganiationMembersByUserId = async (userId) => {
+export const getOrganizationMembersByUserId = async (userId) => {
     const result = await db.query(`${selectQuery} where om.user_id = $1`, [userId]);
 
     return result.rows;

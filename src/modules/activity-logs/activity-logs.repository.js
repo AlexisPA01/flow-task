@@ -56,9 +56,9 @@ export const getActivityLogs = async () => {
 export const createActivityLog = async ({ action, entityType, entityId, metadata, organizationId, userId }) => {
     const result = await db.query(
         `insert into activity_logs (action, entity_type, entity_id, metadata, organization_id, user_id)
-        values ($1, $2, $3, $4, $5)
+        values ($1, $2, $3, $4, $5, $6)
         ${returningQuery}`,
-        [action, entityType, entityId, metadata, organizationId, userId]
+        [action, entityType, entityId, metadata, organizationId || null, userId]
     );
 
     return result.rows[0];

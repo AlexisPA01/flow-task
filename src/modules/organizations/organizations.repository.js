@@ -68,3 +68,12 @@ export const getOrganizationById = async (id) => {
 
     return result.rows[0];
 };
+
+export const getOrganizationByUserId = async (userId) => {
+    const result = await db.query(
+        `${selectQuery} where o.owner_id = $1`,
+        [userId]
+    );
+
+    return result.rows[0];
+};

@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import * as userRepository from "../modules/users/user.repository.js";
+import { asyncLocalStorage } from "../utils/contextHandler.js";
 
 export const authMiddleware = async (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -16,7 +17,14 @@ export const authMiddleware = async (req, res, next) => {
         const decoded = jwt.verify(token, env.secretJWT);
 
         req.user = decoded;
-        next();
+
+        return asyncLocalStorage.run(
+            {
+                userId: decoded.userId,
+                organizationId: decoded.organizationId
+            },
+            () => next()
+        );
     } catch (error) {
         if (error.name !== "TokenExpiredError") {
             return res.status(403).json({ message: "Invalid token" });
@@ -36,16 +44,28 @@ export const authMiddleware = async (req, res, next) => {
             }
 
             const newAccessToken = jwt.sign(
-                { userId: decodedRefresh.userId },
+                {
+                    userId: decodedRefresh.userId,
+                    organizationId: decodedRefresh.organizationId
+                },
                 env.secretJWT,
                 { expiresIn: "15m" }
             );
 
             res.setHeader("x-access-token", newAccessToken);
 
-            req.user = { userId: decodedRefresh.userId };
+            req.user = {
+                userId: decodedRefresh.userId,
+                organizationId: decodedRefresh.organizationId
+            };
 
-            return next();
+            return asyncLocalStorage.run(
+                {
+                    userId: decodedRefresh.userId,
+                    organizationId: decodedRefresh.organizationId
+                },
+                () => next()
+            );
 
         } catch (err) {
             return res.status(403).json({ message: "Invalid refresh token" });

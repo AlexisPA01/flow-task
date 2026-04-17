@@ -112,6 +112,26 @@ export const getUserByEmail = async (req, res) => {
     });
 };
 
+export const getUserById = async (req, res) => {
+    const parsed = userSchemas.getUserByIdSchema.safeParse(req.params);
+
+    if (!parsed.success) {
+        const flattened = z.flattenError(parsed.error);
+        throw new BadRequestError(
+            "Invalid data",
+            flattened.fieldErrors
+        );
+    }
+
+    const user = await userService.getUserById(parsed.data.id);
+
+    return res.status(200).json({
+        success: true,
+        message: "User obtained successfully",
+        data: user
+    });
+};
+
 export const updateManyStatusUser = async (req, res) => {
     const parsed = userSchemas.getManyUserStatus.safeParse(req.body);
 

@@ -9,17 +9,17 @@ export const createOrganizationMemberSchema = z.object({
         .int("The roleId must be a valid integer")
 });
 
-export const organiationMemberByIdSchema = z.object({
+export const organizationMemberByIdSchema = z.object({
     id: z
         .uuid("The id must be a valid uuid")
 });
 
-export const organiationMembersByOrganizationIdSchema = z.object({
+export const organizationMembersByOrganizationIdSchema = z.object({
     organizationId: z
         .uuid("The organizationId must be a valid uuid")
 });
 
-export const organiationMembersByUserIdSchema = z.object({
+export const organizationMembersByUserIdSchema = z.object({
     userId: z
         .uuid("The userId must be a valid uuid")
 });

@@ -1,7 +1,32 @@
 import { db } from "../../config/database.js";
 
+const selectQuery = `
+    select 
+        u.id, 
+        u.email,
+        u.password_hash,
+        u.avatar_url,
+        u.is_active,
+        u.refresh_token,
+        u.created_at,
+        u.updated_at
+    from users u 
+`;
+
+const returningQuery = `
+    returning 
+        users.id, 
+        users.email,
+        users.password_hash,
+        users.avatar_url,
+        users.is_active,
+        users.refresh_token,
+        users.created_at,
+        users.updated_at
+`;
+
 export const getUsers = async () => {
-    const result = await db.query("select id, email, avatar_url, is_active, refresh_token from users");
+    const result = await db.query(selectQuery);
 
     return result.rows;
 };
@@ -9,8 +34,8 @@ export const getUsers = async () => {
 export const createUser = async ({ email, passwordHash, avatarUrl }) => {
     const result = await db.query(
         `insert into users (email, password_hash, avatar_url)
-     values ($1, $2, $3)
-     returning id, email, avatar_url, is_active, created_at`,
+        values ($1, $2, $3)
+        ${returningQuery}`,
         [email, passwordHash, avatarUrl || null]
     );
 
@@ -20,7 +45,7 @@ export const createUser = async ({ email, passwordHash, avatarUrl }) => {
 export const updateUser = async ({ id, email, avatarUrl }) => {
     const result = await db.query(
         `update users set email = COALESCE($1, email), avatar_url = COALESCE($2, avatar_url), updated_at = now() where id = $3
-        returning id, email, avatar_url, is_active, created_at, updated_at`,
+        ${returningQuery}`,
         [email || null, avatarUrl || null, id]
     );
 
@@ -30,7 +55,8 @@ export const updateUser = async ({ id, email, avatarUrl }) => {
 export const updatePassword = async ({ id, passwordHash }) => {
     const result = await db.query(
         `update users set password_hash = $1, updated_at = now() where id = $2
-        returning id, email, avatar_url, is_active, created_at, updated_at`, [passwordHash, id]
+        ${returningQuery}`,
+        [passwordHash, id]
     );
 
     return result.rows[0];
@@ -38,7 +64,7 @@ export const updatePassword = async ({ id, passwordHash }) => {
 
 export const getUserByEmail = async (email) => {
     const result = await db.query(
-        "select * from users where email = $1",
+        `${selectQuery} where email = $1`,
         [email]
     );
 
@@ -47,7 +73,7 @@ export const getUserByEmail = async (email) => {
 
 export const getUserById = async (id) => {
     const result = await db.query(
-        "select * from users where id = $1",
+        `${selectQuery} where id = $1`,
         [id]
     );
 
@@ -63,15 +89,15 @@ export const updateManyStatusUser = async (users) => {
 
     const result = await db.query(
         `
-    update users u
-    set is_active = v.is_active::boolean,
-        updated_at = now()
-    from (
-      values ${values}
-    ) as v(id, is_active)
-    where u.id = v.id::uuid
-    returning u.id, u.email, u.is_active, u.updated_at
-    `,
+        update users u
+        set is_active = v.is_active::boolean,
+            updated_at = now()
+        from (
+        values ${values}
+        ) as v(id, is_active)
+        where u.id = v.id::uuid
+        returning u.id, u.email, u.is_active, u.updated_at
+        `,
         params
     );
 
@@ -93,4 +119,16 @@ export const getRefreshToken = async (id) => {
     );
 
     return result.rows[0].refresh_token;
+};
+
+export const getUsersByIds = async (users) => {
+    const result = await db.query(
+        `
+        ${selectQuery}
+        where u.id = any($1::uuid[])
+        `,
+        [users]
+    );
+
+    return result.rows;
 };

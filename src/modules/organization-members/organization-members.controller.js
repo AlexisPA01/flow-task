@@ -4,8 +4,8 @@ import { BadRequestError } from "../../errors/bad-request.error.js";
 import { NotFoundError } from "../../errors/not-found.error.js";
 import { z } from "zod";
 
-export const getOrganiationMembers = async (req, res) => {
-    const organizationMembers = await organizationMemberService.getOrganiationMembers();
+export const getOrganizationMembers = async (req, res) => {
+    const organizationMembers = await organizationMemberService.getOrganizationMembers();
 
     return res.status(200).json({
         success: true,
@@ -14,7 +14,7 @@ export const getOrganiationMembers = async (req, res) => {
     });
 };
 
-export const createOrganiationMembers = async (req, res) => {
+export const createOrganizationMembers = async (req, res) => {
     const parsed = organizationMemberSchema.createOrganizationMemberSchema.safeParse(req.body);
 
     if (!parsed.success) {
@@ -25,7 +25,7 @@ export const createOrganiationMembers = async (req, res) => {
         );
     }
 
-    const organizationMember = await organizationMemberService.createOrganiationMembers(parsed.data);
+    const organizationMember = await organizationMemberService.createOrganizationMembers(parsed.data);
 
     return res.status(201).json({
         success: true,
@@ -34,8 +34,8 @@ export const createOrganiationMembers = async (req, res) => {
     });
 };
 
-export const deleteOrganiationMemberById = async (req, res) => {
-    const parsed = organizationMemberSchema.organiationMemberByIdSchema.safeParse(req.params);
+export const deleteOrganizationMemberById = async (req, res) => {
+    const parsed = organizationMemberSchema.organizationMemberByIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);
@@ -45,7 +45,7 @@ export const deleteOrganiationMemberById = async (req, res) => {
         );
     }
 
-    const result = await organizationMemberService.deleteOrganiationMemberById(parsed.data.id);
+    const result = await organizationMemberService.deleteOrganizationMemberById(parsed.data.id);
 
     if (result.deletedCount === 0) {
         throw new NotFoundError(
@@ -61,8 +61,8 @@ export const deleteOrganiationMemberById = async (req, res) => {
     });
 };
 
-export const deleteOrganiationMembersByOrganizationId = async (req, res) => {
-    const parsed = organizationMemberSchema.organiationMembersByOrganizationIdSchema.safeParse(req.params);
+export const deleteOrganizationMembersByOrganizationId = async (req, res) => {
+    const parsed = organizationMemberSchema.organizationMembersByOrganizationIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);
@@ -72,7 +72,7 @@ export const deleteOrganiationMembersByOrganizationId = async (req, res) => {
         );
     }
 
-    const result = await organizationMemberService.deleteOrganiationMembersByOrganizationId(parsed.data.organizationId);
+    const result = await organizationMemberService.deleteOrganizationMembersByOrganizationId(parsed.data.organizationId);
 
     return res.status(200).json({
         success: true,
@@ -83,8 +83,8 @@ export const deleteOrganiationMembersByOrganizationId = async (req, res) => {
     });
 };
 
-export const deleteOrganiationMembersByUserId = async (req, res) => {
-    const parsed = organizationMemberSchema.organiationMembersByUserIdSchema.safeParse(req.params);
+export const deleteOrganizationMembersByUserId = async (req, res) => {
+    const parsed = organizationMemberSchema.organizationMembersByUserIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);
@@ -94,7 +94,7 @@ export const deleteOrganiationMembersByUserId = async (req, res) => {
         );
     }
 
-    const result = await organizationMemberService.deleteOrganiationMembersByUserId(parsed.data.userId);
+    const result = await organizationMemberService.deleteOrganizationMembersByUserId(parsed.data.userId);
 
     return res.status(200).json({
         success: true,
@@ -105,8 +105,8 @@ export const deleteOrganiationMembersByUserId = async (req, res) => {
     });
 };
 
-export const getOrganiationMemberById = async (req, res) => {
-    const parsed = organizationMemberSchema.organiationMemberByIdSchema.safeParse(req.params);
+export const getOrganizationMemberById = async (req, res) => {
+    const parsed = organizationMemberSchema.organizationMemberByIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);
@@ -116,7 +116,7 @@ export const getOrganiationMemberById = async (req, res) => {
         );
     }
 
-    const organizationMember = await organizationMemberService.getOrganiationMemberById(parsed.data.id);
+    const organizationMember = await organizationMemberService.getOrganizationMemberById(parsed.data.id);
 
     return res.status(200).json({
         success: true,
@@ -125,8 +125,8 @@ export const getOrganiationMemberById = async (req, res) => {
     });
 };
 
-export const getOrganiationMembersByOrganizationId = async (req, res) => {
-    const parsed = organizationMemberSchema.organiationMembersByOrganizationIdSchema.safeParse(req.params);
+export const getOrganizationMembersByOrganizationId = async (req, res) => {
+    const parsed = organizationMemberSchema.organizationMembersByOrganizationIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);
@@ -136,7 +136,7 @@ export const getOrganiationMembersByOrganizationId = async (req, res) => {
         );
     }
 
-    const organizationMember = await organizationMemberService.getOrganiationMembersByOrganizationId(parsed.data.organizationId);
+    const organizationMember = await organizationMemberService.getOrganizationMembersByOrganizationId(parsed.data.organizationId);
 
     if (organizationMember.length === 0) {
         return res.status(200).json({
@@ -153,8 +153,8 @@ export const getOrganiationMembersByOrganizationId = async (req, res) => {
     });
 };
 
-export const getOrganiationMembersByUserId = async (req, res) => {
-    const parsed = organizationMemberSchema.organiationMembersByUserIdSchema.safeParse(req.params);
+export const getOrganizationMembersByUserId = async (req, res) => {
+    const parsed = organizationMemberSchema.organizationMembersByUserIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);
@@ -164,7 +164,7 @@ export const getOrganiationMembersByUserId = async (req, res) => {
         );
     }
 
-    const organizationMember = await organizationMemberService.getOrganiationMembersByUserId(parsed.data.userId);
+    const organizationMember = await organizationMemberService.getOrganizationMembersByUserId(parsed.data.userId);
 
     if (organizationMember.length === 0) {
         return res.status(200).json({
