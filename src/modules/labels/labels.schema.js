@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { registry } from "../../docs/swagger.js";
+
+extendZodWithOpenApi(z);
 
 export const createLabelSchema = z.object({
     name: z
@@ -48,3 +52,21 @@ export const labelByOrganizationIdSchema = z.object({
     organizationId: z
         .uuid("The organizationId must be a valid uuid")
 });
+
+export const labelFullSchema = z.object({
+    id: z.uuid(),
+    name: z.string(),
+    color: z.string(),
+
+    organization: z.object({
+        id: z.uuid(),
+        name: z.string(),
+        slug: z.string()
+    })
+});
+
+registry.register("CreateLabel", createLabelSchema);
+registry.register("UpdateLabel", updateLabelSchema);
+registry.register("LabelById", labelByIdSchema);
+registry.register("LabelsByOrganizationId", labelByOrganizationIdSchema);
+registry.register("LabelResponse", labelFullSchema);

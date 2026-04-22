@@ -139,7 +139,7 @@ export const getTaskCommentsByTaskId = async (req, res) => {
 };
 
 export const getTaskCommentsByAuthorId = async (req, res) => {
-    const parsed = taskCommentSchema.taskCommentsByAythorIdSchema.safeParse(req.params);
+    const parsed = taskCommentSchema.taskCommentsByAuthorIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);

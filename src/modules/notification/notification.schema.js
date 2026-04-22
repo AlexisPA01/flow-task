@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { registry } from "../../docs/swagger.js";
+
+extendZodWithOpenApi(z);
 
 export const createNotificationSchema = z.object({
     title: z
@@ -31,3 +35,26 @@ export const notificationsByTypeIdSchema = z.object({
         .int("The typeId must be a valid integer")
 });
 
+export const notificationFullSchema = z.object({
+    id: z.uuid(),
+    title: z.string(),
+    message: z.string(),
+    is_read: z.boolean(),
+    created_at: z.string().datetime(),
+
+    user: z.object({
+        id: z.uuid(),
+        email: z.email()
+    }),
+
+    notification_type: z.object({
+        id: z.int(),
+        name: z.string()
+    })
+});
+
+registry.register("CreateNotification", createNotificationSchema);
+registry.register("NotificationById", notificationByIdSchema);
+registry.register("NotificationsByUserId", notificationsByUserIdSchema);
+registry.register("NotificationsByTypeId", notificationsByTypeIdSchema);
+registry.register("NotificationResponse", notificationFullSchema);

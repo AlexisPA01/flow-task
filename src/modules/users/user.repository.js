@@ -96,7 +96,7 @@ export const updateManyStatusUser = async (users) => {
         values ${values}
         ) as v(id, is_active)
         where u.id = v.id::uuid
-        returning u.id, u.email, u.is_active, u.updated_at
+        ${returningQuery}
         `,
         params
     );

@@ -44,7 +44,7 @@ export const updateOrganization = async (req, res) => {
         );
     }
 
-    const paramsParsed = organizationSchema.getOrganizationById.safeParse(req.params);
+    const paramsParsed = organizationSchema.organizationByIdSchema.safeParse(req.params);
     if (!paramsParsed.success) {
         const flattened = z.flattenError(paramsParsed.error);
         throw new BadRequestError(
@@ -63,7 +63,7 @@ export const updateOrganization = async (req, res) => {
 };
 
 export const getOrganizationById = async (req, res) => {
-    const parsed = organizationSchema.getOrganizationById.safeParse(req.params);
+    const parsed = organizationSchema.organizationByIdSchema.safeParse(req.params);
 
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);

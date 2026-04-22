@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { registry } from "../../docs/swagger.js";
+
+extendZodWithOpenApi(z);
 
 const allowedExtensions = ['.jpg', '.jpeg', '.png', '.svg', '.gif', '.mp4', '.webm'];
 
@@ -67,3 +71,29 @@ export const attachmentsByUploaderIdSchema = z.object({
     uploaderId: z
         .uuid("The uploaderId must be a valid uuid")
 });
+
+export const attachmentFullSchema = z.object({
+    id: z.uuid(),
+    file_url: z.string(),
+    file_name: z.string(),
+    created_at: z.string().datetime(),
+
+    task: z.object({
+        id: z.uuid(),
+        title: z.string(),
+        description: z.string().nullable(),
+        due_date: z.string().datetime().nullable()
+    }),
+
+    uploader: z.object({
+        id: z.uuid(),
+        email: z.email()
+    })
+});
+
+registry.register("CreateAttachment", createAttachmentSchema);
+registry.register("UpdateAttachment", updateAttachmentSchema);
+registry.register("AttachmentById", attachmentByIdSchema);
+registry.register("AttachmentsByTaskId", attachmentsByTaskIdSchema);
+registry.register("AttachmentsByUploaderId", attachmentsByUploaderIdSchema);
+registry.register("AttachmentResponse", attachmentFullSchema);

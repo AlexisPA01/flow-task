@@ -5,11 +5,15 @@ import helmet from "helmet";
 import routes from "./routes/index.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 
+import "./docs/index.js";
+
+import { setupSwagger } from "./docs/swagger.js";
 const app = express();
 
+setupSwagger(app);
 app.use(express.json());
 app.use(cors({
-    origin: "localhost"
+    origin: "http://localhost:3000"
 }));
 app.use(helmet());
 

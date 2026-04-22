@@ -5,7 +5,8 @@ const selectQuery = `
         json_build_object(
             'id', t.id, 
             'title', t.title, 
-            'description', t.description
+            'description', t.description,
+            'due_date', t.due_date,
         ) as task,
         json_build_object(
             'id', l.id, 

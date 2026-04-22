@@ -9,8 +9,8 @@ export const getStatus = async () => {
 export const createStatus = async ({ name }) => {
     const result = await db.query(
         `insert into status (name)
-     values ($1)
-     returning id, name`,
+        values ($1)
+        returning id, name`,
         [name]
     );
 

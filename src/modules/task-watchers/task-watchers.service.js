@@ -128,7 +128,7 @@ export const deleteTaskWatcherByTaskId = async (taskId) => {
 };
 
 export const deleteTaskWatcherByUserId = async (userId) => {
-    await validateTaskExists(userId);
+    await validateUserExists(userId);
 
     const existingTaskWatchers = await taskWatcherRepository.getTaskWatcherByUserId(userId);
 

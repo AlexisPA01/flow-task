@@ -9,8 +9,8 @@ export const getRoles = async () => {
 export const createRole = async ({ name }) => {
     const result = await db.query(
         `insert into role (name)
-     values ($1)
-     returning id, name`,
+        values ($1)
+        returning id, name`,
         [name]
     );
 

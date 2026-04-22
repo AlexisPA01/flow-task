@@ -2,13 +2,14 @@ import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import * as userRepository from "../modules/users/user.repository.js";
 import { asyncLocalStorage } from "../utils/contextHandler.js";
+import { UnauthorizedError } from "../errors/unauthorized.error.js";
 
 export const authMiddleware = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     const refreshToken = req.headers["x-refresh-token"];
 
     if (!authHeader) {
-        return res.status(401).json({ message: "No token provided" });
+        return next(new UnauthorizedError("No token provided"));
     }
 
     const token = authHeader.split(" ")[1];
@@ -27,11 +28,11 @@ export const authMiddleware = async (req, res, next) => {
         );
     } catch (error) {
         if (error.name !== "TokenExpiredError") {
-            return res.status(403).json({ message: "Invalid token" });
+            return next(new UnauthorizedError("Invalid token"));
         }
 
         if (!refreshToken) {
-            return res.status(401).json({ message: "Refresh token required" });
+            return next(new UnauthorizedError("Refresh token required"));
         }
 
         try {
@@ -40,7 +41,7 @@ export const authMiddleware = async (req, res, next) => {
             const storedToken = await userRepository.getRefreshToken(decodedRefresh.userId);
 
             if (storedToken !== refreshToken) {
-                return res.status(403).json({ message: "Invalid refresh token" });
+                return next(new UnauthorizedError("Invalid refresh token"));
             }
 
             const newAccessToken = jwt.sign(
@@ -68,7 +69,7 @@ export const authMiddleware = async (req, res, next) => {
             );
 
         } catch (err) {
-            return res.status(403).json({ message: "Invalid refresh token" });
+            return next(new UnauthorizedError("Invalid refresh token"));
         }
     }
 };

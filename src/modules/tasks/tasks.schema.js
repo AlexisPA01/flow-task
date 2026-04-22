@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { registry } from "../../docs/swagger.js";
+
+extendZodWithOpenApi(z);
 
 export const createTaskSchema = z.object({
     title: z
@@ -50,7 +54,7 @@ export const updateTaskSchema = z.object({
     (data) => {
         const hasTitle = data.title && data.title.trim() !== "";
         const hasDescription = data.description && data.description.trim() !== "";
-        const hasAssignneId = data.assignneId && data.assignneId.trim() !== "";
+        const hasAssignneId = data.assigneeId && data.assigneeId.trim() !== "";
         const hasReporterId = data.reporterId && data.reporterId.trim() !== "";
         const hasPriorityId = data.priorityId && data.priorityId.toString().trim() !== "";
         const hasDueDate = data.dueDate && data.dueDate.toISOString().trim() !== "";
@@ -97,3 +101,50 @@ export const tasksByPriorityIdSchema = z.object({
         .coerce.number()
         .int("The priorityId must be a valid integer")
 });
+
+export const taskFullSchema = z.object({
+    id: z.uuid(),
+    title: z.string(),
+    description: z.string().nullable(),
+    due_date: z.string().datetime().nullable(),
+    created_at: z.string().datetime(),
+    updated_at: z.string().datetime(),
+
+    project: z.object({
+        id: z.uuid(),
+        name: z.string(),
+        key: z.string(),
+        description: z.string(),
+    }),
+
+    assignee: z.object({
+        id: z.uuid(),
+        email: z.email(),
+    }).nullable(),
+
+    reporter: z.object({
+        id: z.uuid(),
+        email: z.email(),
+    }),
+
+    status: z.object({
+        id: z.int(),
+        name: z.string(),
+    }),
+
+    priority: z.object({
+        id: z.int(),
+        name: z.string(),
+    }).nullable(),
+});
+
+registry.register("CreateTask", createTaskSchema);
+registry.register("UpdateTask", updateTaskSchema);
+registry.register("UpdateTaskStatus", updateTaskStatusSchema);
+registry.register("TaskById", taskByIdSchema);
+registry.register("TasksByProjectId", tasksByProjectIdSchema);
+registry.register("TasksByAssigneeId", tasksByUserAssigneeIdSchema);
+registry.register("TasksByReporterId", tasksByUserReporterIdSchema);
+registry.register("TasksByStatusId", tasksByStatusIdSchema);
+registry.register("TasksByPriorityId", tasksByPriorityIdSchema);
+registry.register("TaskResponse", taskFullSchema);

@@ -73,8 +73,6 @@ export const createProject = async ({ name, key, description, organizationId, cr
 };
 
 export const updateProject = async (id, { name, key, description }) => {
-    await validateProjectExists(id);
-
     const existing = await validateProjectExists(id);
 
     const keyFormat = generateKey(key);

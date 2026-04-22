@@ -1,4 +1,8 @@
-import { z } from "zod";
+import { email, z } from "zod";
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { registry } from "../../docs/swagger.js";
+
+extendZodWithOpenApi(z);
 
 export const createUserSchema = z.object({
     email: z
@@ -73,3 +77,29 @@ export const loginSchema = z.object({
         .string()
         .min(8, "The password must be at least 8 characters long"),
 });
+
+export const userFullSchema = z.object({
+    id: z.uuid(),
+    email: z.email(),
+    password_hash: z.string(),
+    avatar_url: z.string().nullable(),
+    is_active: z.boolean(),
+    refresh_token: z.string().nullable(),
+    created_at: z.string().datetime(),
+    updated_at: z.string().datetime()
+});
+
+export const authTokensSchema = z.object({
+    accessToken: z.string(),
+    refreshToken: z.string(),
+});
+
+registry.register("CreateUser", createUserSchema);
+registry.register("UpdateUser", updateUserSchema);
+registry.register("UpdateUserPassword", updateUserPasswordSchema);
+registry.register("GetUserByEmail", getUserByEmailSchema);
+registry.register("getManyUserStatus", getManyUserStatus);
+registry.register("GetUserById", getUserByIdSchema);
+registry.register("Login", loginSchema);
+registry.register("AuthTokens", authTokensSchema);
+registry.register("UserResponse", userFullSchema);

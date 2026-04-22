@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { registry } from "../../docs/swagger.js";
+
+extendZodWithOpenApi(z);
 
 export const createTaskCommentSchema = z.object({
     content: z
@@ -45,7 +49,33 @@ export const taskCommentsByTaskIdSchema = z.object({
         .uuid("The taskId must be a valid uuid")
 });
 
-export const taskCommentsByAythorIdSchema = z.object({
+export const taskCommentsByAuthorIdSchema = z.object({
     authorId: z
         .uuid("The authorId must be a valid uuid")
 });
+
+export const taskCommentFullSchema = z.object({
+    id: z.uuid(),
+    content: z.string(),
+    created_at: z.string().datetime(),
+    updated_at: z.string().datetime(),
+
+    task: z.object({
+        id: z.uuid(),
+        title: z.string(),
+        description: z.string().nullable(),
+        due_date: z.string().datetime().nullable()
+    }),
+
+    author: z.object({
+        id: z.uuid(),
+        email: z.email()
+    })
+});
+
+registry.register("CreateTaskComment", createTaskCommentSchema);
+registry.register("UpdateTaskComment", updateTaskCommentSchema);
+registry.register("TaskCommentById", taskCommentByIdSchema);
+registry.register("TaskCommentsByTaskId", taskCommentsByTaskIdSchema);
+registry.register("TaskCommentsByAuthorId", taskCommentsByAuthorIdSchema);
+registry.register("TaskCommentResponse", taskCommentFullSchema);

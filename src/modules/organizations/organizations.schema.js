@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { registry } from "../../docs/swagger.js";
+
+extendZodWithOpenApi(z);
 
 export const createOrganizationSchema = z.object({
     name: z
@@ -29,7 +33,25 @@ export const updateOrganizationSchema = z.object({
     }
 );
 
-export const getOrganizationById = z.object({
+export const organizationByIdSchema = z.object({
     id: z
         .uuid("The id must be a valid uuid")
 });
+
+export const organizationFullSchema = z.object({
+    id: z.uuid(),
+    name: z.string(),
+    slug: z.string(),
+    created_at: z.string().datetime(),
+    updated_at: z.string().datetime(),
+
+    owner: z.object({
+        id: z.uuid(),
+        email: z.email()
+    })
+});
+
+registry.register("CreateOrganization", createOrganizationSchema);
+registry.register("UpdateOrganization", updateOrganizationSchema);
+registry.register("OrganizationById", organizationByIdSchema);
+registry.register("OrganizationResponse", organizationFullSchema);

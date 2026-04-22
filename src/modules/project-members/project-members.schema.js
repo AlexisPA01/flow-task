@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { registry } from "../../docs/swagger.js";
+
+extendZodWithOpenApi(z);
 
 export const createProjectMemberSchema = z.object({
     projectId: z
@@ -22,3 +26,25 @@ export const projectMembersByUserIdSchema = z.object({
         .uuid("The userId must be a valid uuid")
 });
 
+export const projectMemberFullSchema = z.object({
+    id: z.uuid(),
+    joined_at: z.string().datetime(),
+
+    project: z.object({
+        id: z.uuid(),
+        name: z.string(),
+        key: z.string(),
+        description: z.string().nullable()
+    }),
+
+    user: z.object({
+        id: z.uuid(),
+        email: z.email()
+    })
+});
+
+registry.register("CreateProjectMember", createProjectMemberSchema);
+registry.register("ProjectMemberById", projectMemberByIdSchema);
+registry.register("ProjectMemberByTaskId", projectMembersByProjectIdSchema);
+registry.register("ProjectMemberByUserId", projectMembersByUserIdSchema);
+registry.register("ProjectMemberResponse", projectMemberFullSchema);
