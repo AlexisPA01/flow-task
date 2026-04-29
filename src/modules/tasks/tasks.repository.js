@@ -32,7 +32,7 @@ const selectQuery = `
         ) as priority
     from tasks t
     inner join projects p on t.project_id = p.id 
-    inner join users ua on t.assignee_id = ua.id
+    left join users ua on t.assignee_id = ua.id
     inner join users ur on t.reporter_id = ur.id
     inner join status s on t.status_id = s.id
     inner join priority pr on t.priority_id = pr.id
@@ -137,7 +137,6 @@ export const updateTaskStatus = async ({ id, statusId }) => {
 
 export const getTaskById = async (id) => {
     const result = await db.query(`${selectQuery} where t.id = $1`, [id]);
-
     return result.rows[0];
 };
 

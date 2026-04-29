@@ -15,7 +15,9 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write .",
-    "check-format": "prettier --check ."
+    "check-format": "prettier --check .",
+    "test": "cross-env NODE_ENV=test vitest",
+    "test:watch": "cross-env NODE_ENV=test vitest --watch"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
@@ -35,11 +37,14 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "cross-env": "^10.1.0",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^17.4.0",
     "nodemon": "^3.1.14",
-    "prettier": "^3.8.1"
+    "prettier": "^3.8.1",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.5"
   }
 }

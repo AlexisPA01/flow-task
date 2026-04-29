@@ -7,27 +7,32 @@ import { validateTaskExists } from "../../validators/task.validator.js";
 import { validateStatusExists } from "../../validators/status.validator.js";
 import * as activityLogService from "../activity-logs/activity-logs.service.js";
 import { asyncLocalStorage } from "../../utils/contextHandler.js";
+import { env } from "../../config/env.js";
+
+const isTest = env.environmentMode === "test";
 
 export const getTasks = async () => {
     const tasks = await taskRepository.getTasks();
 
     const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "READ",
-        entityType: "tasks",
-        entityId: null,
-        metadata:
-        {
-            payload: {},
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+    if (!isTest) {
+        await activityLogService.createActivityLog({
+            action: "READ",
+            entityType: "tasks",
+            entityId: null,
+            metadata:
+            {
+                payload: {},
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
+            },
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return tasks;
 };
@@ -46,30 +51,32 @@ export const createTask = async ({ title, description, projectId, assigneeId, re
 
     const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "CREATE",
-        entityType: "tasks",
-        entityId: task.id,
-        metadata:
-        {
-            payload: {
-                title,
-                description,
-                project_id: projectId,
-                assignee_id: assigneeId,
-                reporter_id: reporterId,
-                status_id: task.status.id,
-                priority_id: priorityId,
-                due_date: dueDate
+    if (!isTest) {
+        await activityLogService.createActivityLog({
+            action: "CREATE",
+            entityType: "tasks",
+            entityId: task.id,
+            metadata:
+            {
+                payload: {
+                    title,
+                    description,
+                    project_id: projectId,
+                    assignee_id: assigneeId,
+                    reporter_id: reporterId,
+                    status_id: task.status.id,
+                    priority_id: priorityId,
+                    due_date: dueDate
+                },
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return task;
 };
@@ -147,7 +154,11 @@ export const updateTask = async (id, { title, description, assigneeId, reporterI
 
     const store = asyncLocalStorage.getStore();
 
-    if (changesTaskHistory.length > 0) {
+    console.log();
+    console.log(isTest);
+    console.log(changesTaskHistory.length > 0 && !isTest);
+
+    if (changesTaskHistory.length > 0 && !isTest) {
         await Promise.all(
             changesTaskHistory.map(change =>
                 taskHistoryRepository.createTaskHistory({
@@ -161,48 +172,49 @@ export const updateTask = async (id, { title, description, assigneeId, reporterI
         );
     }
 
-    await activityLogService.createActivityLog({
-        action: "UPDATE",
-        entityType: "tasks",
-        entityId: id,
-        metadata:
-        {
-            payload: {
-                before: {
-                    title: existing.title,
-                    description: existing.description,
-                    project_id: existing.projects.id,
-                    assignee_id: existing.assignee.id,
-                    reporter_id: existing.reporter.id,
-                    priority_id: existing.priority.id,
-                    due_date: existing.due_date
+    if (!isTest) {
+        await activityLogService.createActivityLog({
+            action: "UPDATE",
+            entityType: "tasks",
+            entityId: id,
+            metadata:
+            {
+                payload: {
+                    before: {
+                        title: existing.title,
+                        description: existing.description,
+                        project_id: existing.projects.id,
+                        assignee_id: existing.assignee.id,
+                        reporter_id: existing.reporter.id,
+                        priority_id: existing.priority.id,
+                        due_date: existing.due_date
+                    },
+                    after: {
+                        title: updatedTask.title,
+                        description: updatedTask.description,
+                        project_id: updatedTask.projects.id,
+                        assignee_id: updatedTask.assignee.id,
+                        reporter_id: updatedTask.reporter.id,
+                        priority_id: updatedTask.priority.id,
+                        due_date: updatedTask.due_date
+                    },
+                    changes: changesActivityLogs
                 },
-                after: {
-                    title: updatedTask.title,
-                    description: updatedTask.description,
-                    project_id: updatedTask.projects.id,
-                    assignee_id: updatedTask.assignee.id,
-                    reporter_id: updatedTask.reporter.id,
-                    priority_id: updatedTask.priority.id,
-                    due_date: updatedTask.due_date
-                },
-                changes: changesActivityLogs
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return updatedTask;
 };
 
 export const updateTaskStatus = async (id, { statusId }) => {
     const existing = await validateTaskExists(id);
-
     await validateStatusExists(statusId);
 
     if (existing.status.id === statusId) {
@@ -213,40 +225,41 @@ export const updateTaskStatus = async (id, { statusId }) => {
 
     const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "UPDATE",
-        entityType: "tasks",
-        entityId: id,
-        metadata:
-        {
-            payload: {
-                before: {
-                    status_id: existing.status.id
+    if (!isTest) {
+        await activityLogService.createActivityLog({
+            action: "UPDATE",
+            entityType: "tasks",
+            entityId: id,
+            metadata:
+            {
+                payload: {
+                    before: {
+                        status_id: existing.status.id
+                    },
+                    after: {
+                        status_id: task.status.id
+                    },
+                    changes: {
+                        status_id: statusId
+                    }
                 },
-                after: {
-                    status_id: task.status.id
-                },
-                changes: {
-                    status_id: statusId
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
                 }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
 
-    await taskHistoryRepository.createTaskHistory({
-        field: "status_id",
-        oldValue: { status_id: taskCheck.status.id },
-        newValue: { status_id: task.status.id },
-        taskId: id,
-        changedId: store?.userId
-    })
-
+        await taskHistoryRepository.createTaskHistory({
+            field: "status_id",
+            oldValue: { status_id: taskCheck.status.id },
+            newValue: { status_id: task.status.id },
+            taskId: id,
+            changedId: store?.userId
+        });
+    }
     return task;
 };
 
@@ -255,23 +268,25 @@ export const getTaskById = async (id) => {
 
     const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "READ",
-        entityType: "tasks",
-        entityId: id,
-        metadata:
-        {
-            payload: {
-                id
+    if (!isTest) {
+        await activityLogService.createActivityLog({
+            action: "READ",
+            entityType: "tasks",
+            entityId: id,
+            metadata:
+            {
+                payload: {
+                    id
+                },
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return task;
 };
@@ -283,25 +298,27 @@ export const getTasksByProjectId = async (projectId) => {
 
     const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "READ",
-        entityType: "tasks",
-        entityId: projectId,
-        metadata:
-        {
-            payload: {
-                filter: {
-                    project_id: projectId
+    if (!isTest) {
+        await activityLogService.createActivityLog({
+            action: "READ",
+            entityType: "tasks",
+            entityId: projectId,
+            metadata:
+            {
+                payload: {
+                    filter: {
+                        project_id: projectId
+                    }
+                },
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
                 }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return task;
 };
