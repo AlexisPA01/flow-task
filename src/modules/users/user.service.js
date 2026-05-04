@@ -1,41 +1,44 @@
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
 import * as userRepository from "./user.repository.js";
-import { validateUserEmailExists, validateUserExists } from "../../validators/user.validator.js";
+import { validateUserEmailExists, validateUserExists, validateUserEmailAlreadyExists } from "../../validators/user.validator.js";
 import { UnauthorizedError } from "../../errors/unauthorized.error.js";
 import { env } from "../../config/env.js";
 import * as organizationRepository from "../organizations/organizations.repository.js";
 import * as activityLogService from "../activity-logs/activity-logs.service.js";
 import { asyncLocalStorage } from "../../utils/contextHandler.js";
 
+const isTest = env.environmentMode === "test";
 const saltRounds = 10;
 
 export const getUsers = async () => {
     const users = await userRepository.getUsers();
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "READ",
-        entityType: "users",
-        entityId: null,
-        metadata:
-        {
-            payload: {},
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+        await activityLogService.createActivityLog({
+            action: "READ",
+            entityType: "users",
+            entityId: null,
+            metadata:
+            {
+                payload: {},
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
+            },
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return users;
 };
 
 export const createUser = async ({ email, password, avatarUrl }) => {
-    await validateUserEmailExists(email);
+    await validateUserEmailAlreadyExists(email);
 
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
@@ -45,26 +48,28 @@ export const createUser = async ({ email, password, avatarUrl }) => {
         avatarUrl,
     });
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "CREATE",
-        entityType: "users",
-        entityId: user.id,
-        metadata:
-        {
-            payload: {
-                email,
-                avatar_url: avatarUrl,
+        await activityLogService.createActivityLog({
+            action: "CREATE",
+            entityType: "users",
+            entityId: user.id,
+            metadata:
+            {
+                payload: {
+                    email,
+                    avatar_url: avatarUrl,
+                },
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return user;
 };
@@ -92,33 +97,35 @@ export const updateUser = async ({ email, avatarUrl }, id) => {
         changes.avatar_url = { from: existing.avatar_url, to: avatarUrl };
     }
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "UPDATE",
-        entityType: "users",
-        entityId: id,
-        metadata:
-        {
-            payload: {
-                before: {
-                    email: existing.email,
-                    avatar_url: existing.avatar_url
+        await activityLogService.createActivityLog({
+            action: "UPDATE",
+            entityType: "users",
+            entityId: id,
+            metadata:
+            {
+                payload: {
+                    before: {
+                        email: existing.email,
+                        avatar_url: existing.avatar_url
+                    },
+                    after: {
+                        email: user.email,
+                        avatar_url: user.avatar_url
+                    },
+                    changes
                 },
-                after: {
-                    email: user.email,
-                    avatar_url: user.avatar_url
-                },
-                changes
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return user;
 };
@@ -139,31 +146,33 @@ export const updatePasswordUser = async (id, password) => {
         changes.password_hash = { from: existing.password_hash, to: passwordHash };
     }
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "UPDATE",
-        entityType: "users",
-        entityId: id,
-        metadata:
-        {
-            payload: {
-                before: {
-                    password_hash: existing.password_hash
+        await activityLogService.createActivityLog({
+            action: "UPDATE",
+            entityType: "users",
+            entityId: id,
+            metadata:
+            {
+                payload: {
+                    before: {
+                        password_hash: existing.password_hash
+                    },
+                    after: {
+                        password_hash: user.password_hash
+                    },
+                    changes
                 },
-                after: {
-                    password_hash: user.password_hash
-                },
-                changes
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return user;
 };
@@ -171,25 +180,27 @@ export const updatePasswordUser = async (id, password) => {
 export const getUserByEmail = async (email) => {
     const user = await validateUserEmailExists(email);
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "READ",
-        entityType: "users",
-        entityId: email,
-        metadata:
-        {
-            payload: {
-                email
+        await activityLogService.createActivityLog({
+            action: "READ",
+            entityType: "users",
+            entityId: email,
+            metadata:
+            {
+                payload: {
+                    email
+                },
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return user;
 };
@@ -197,25 +208,27 @@ export const getUserByEmail = async (email) => {
 export const getUserById = async (id) => {
     const user = await validateUserExists(id);
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "READ",
-        entityType: "users",
-        entityId: id,
-        metadata:
-        {
-            payload: {
-                id
+        await activityLogService.createActivityLog({
+            action: "READ",
+            entityType: "users",
+            entityId: id,
+            metadata:
+            {
+                payload: {
+                    id
+                },
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return user;
 };
@@ -252,27 +265,29 @@ export const updateManyStatusUser = async (users) => {
         };
     });
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "UPDATE",
-        entityType: "users",
-        entityId: null,
-        metadata: {
-            payload: {
-                updatedCount: changes.filter(x => !x.notFound).length,
-                notUpdatedCount: changes.filter(x => x.notFound).length,
-                changes
+        await activityLogService.createActivityLog({
+            action: "UPDATE",
+            entityType: "users",
+            entityId: null,
+            metadata: {
+                payload: {
+                    updatedCount: changes.filter(x => !x.notFound).length,
+                    notUpdatedCount: changes.filter(x => x.notFound).length,
+                    changes
+                },
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString(),
+                    operationType: "bulk"
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString(),
-                operationType: "bulk"
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return updatedUsers;
 };
@@ -281,7 +296,7 @@ const generateAccessToken = (user, organization) => {
     return jwt.sign(
         {
             userId: user.id,
-            organizationId: organization.id
+            organizationId: organization?.id ?? null
         },
         env.secretJWT,
         {
@@ -294,7 +309,7 @@ const generateRefreshToken = (user, organization) => {
     return jwt.sign(
         {
             userId: user.id,
-            organizationId: organization.id
+            organizationId: organization?.id ?? null
         },
         env.refreshSecretJWT,
         {
@@ -322,25 +337,27 @@ export const login = async ({ email, password }) => {
 
     await userRepository.saveRefreshToken(user.id, refreshToken);
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "LOGIN",
-        entityType: "users",
-        entityId: email,
-        metadata:
-        {
-            payload: {
-                email
+        await activityLogService.createActivityLog({
+            action: "LOGIN",
+            entityType: "users",
+            entityId: email,
+            metadata:
+            {
+                payload: {
+                    email
+                },
+                meta: {
+                    email,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                email,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: organization.id,
-        userId: user.id
-    });
+            organizationId: organization.id,
+            userId: user.id
+        });
+    }
 
     return {
         accessToken,

@@ -98,7 +98,7 @@ export const getUserByEmail = async (req, res) => {
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);
         throw new BadRequestError(
-            "Invalid data",
+            "Invalid params",
             flattened.fieldErrors
         );
     }
@@ -118,7 +118,7 @@ export const getUserById = async (req, res) => {
     if (!parsed.success) {
         const flattened = z.flattenError(parsed.error);
         throw new BadRequestError(
-            "Invalid data",
+            "Invalid params",
             flattened.fieldErrors
         );
     }

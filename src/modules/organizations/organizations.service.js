@@ -3,6 +3,9 @@ import { validateUserExists } from "../../validators/user.validator.js";
 import { validateOrganizationExists } from "../../validators/organization.validator.js";
 import * as activityLogService from "../activity-logs/activity-logs.service.js";
 import { asyncLocalStorage } from "../../utils/contextHandler.js";
+import { env } from "../../config/env.js";
+
+const isTest = env.environmentMode === "test";
 
 const generateSlug = (name) => {
     return name ? name
@@ -21,23 +24,25 @@ const generateSlug = (name) => {
 export const getOrganizations = async () => {
     const organizations = await organizationRepository.getOrganizations();
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "READ",
-        entityType: "organizations",
-        entityId: null,
-        metadata:
-        {
-            payload: {},
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+        await activityLogService.createActivityLog({
+            action: "READ",
+            entityType: "organizations",
+            entityId: null,
+            metadata:
+            {
+                payload: {},
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
+            },
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return organizations;
 };
@@ -53,27 +58,29 @@ export const createOrganization = async ({ name, ownerId }) => {
         ownerId,
     });
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "CREATE",
-        entityType: "organizations",
-        entityId: organization.id,
-        metadata:
-        {
-            payload: {
-                name,
-                slug,
-                owner_id: ownerId
+        await activityLogService.createActivityLog({
+            action: "CREATE",
+            entityType: "organizations",
+            entityId: organization.id,
+            metadata:
+            {
+                payload: {
+                    name,
+                    slug,
+                    owner_id: ownerId
+                },
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return organization;
 };
@@ -108,35 +115,37 @@ export const updateOrganization = async (id, { name, ownerId }) => {
         changes.owner_id = { from: existing.owner.id, to: ownerId };
     }
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "UPDATE",
-        entityType: "organizations",
-        entityId: id,
-        metadata:
-        {
-            payload: {
-                before: {
-                    name: existing.name,
-                    slug: existing.slug,
-                    owner_id: existing.owner.id
+        await activityLogService.createActivityLog({
+            action: "UPDATE",
+            entityType: "organizations",
+            entityId: id,
+            metadata:
+            {
+                payload: {
+                    before: {
+                        name: existing.name,
+                        slug: existing.slug,
+                        owner_id: existing.owner.id
+                    },
+                    after: {
+                        name: organization.name,
+                        slug: organization.slug,
+                        owner_id: organization.owner.id
+                    },
+                    changes
                 },
-                after: {
-                    name: organization.name,
-                    slug: organization.slug,
-                    owner_id: organization.owner.id
-                },
-                changes
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return organization;
 };
@@ -144,25 +153,27 @@ export const updateOrganization = async (id, { name, ownerId }) => {
 export const getOrganizationById = async (id) => {
     const organization = await validateOrganizationExists(id);
 
-    const store = asyncLocalStorage.getStore();
+    if (!isTest) {
+        const store = asyncLocalStorage.getStore();
 
-    await activityLogService.createActivityLog({
-        action: "READ",
-        entityType: "organizations",
-        entityId: id,
-        metadata:
-        {
-            payload: {
-                id
+        await activityLogService.createActivityLog({
+            action: "READ",
+            entityType: "organizations",
+            entityId: id,
+            metadata:
+            {
+                payload: {
+                    id
+                },
+                meta: {
+                    userId: store?.userId,
+                    timestamp: new Date().toISOString()
+                }
             },
-            meta: {
-                userId: store?.userId,
-                timestamp: new Date().toISOString()
-            }
-        },
-        organizationId: store?.organizationId,
-        userId: store?.userId
-    });
+            organizationId: store?.organizationId,
+            userId: store?.userId
+        });
+    }
 
     return organization;
 };

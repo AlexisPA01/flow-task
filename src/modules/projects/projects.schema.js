@@ -12,11 +12,12 @@ export const createProjectSchema = z.object({
     key: z
         .string()
         .min(1, "The key must be at least 1 characters long")
-        .max(6, "The name must have a maximum of 6 characters."),
+        .max(12, "The name must have a maximum of 12 characters."),
     description: z
         .string()
         .min(20, "The description must be at least 20 characters long")
-        .max(250, "The description must have a maximum of 250 characters."),
+        .max(250, "The description must have a maximum of 250 characters.")
+        .optional(),
     organizationId: z
         .uuid("The organizationId must be a valid uuid"),
     createdBy: z
@@ -32,7 +33,7 @@ export const updateProjectSchema = z.object({
     key: z
         .string()
         .min(1, "The key must be at least 1 characters long")
-        .max(6, "The name must have a maximum of 6 characters.")
+        .max(12, "The name must have a maximum of 12 characters.")
         .optional(),
     description: z
         .string()

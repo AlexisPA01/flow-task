@@ -14,9 +14,9 @@ const isTest = env.environmentMode === "test";
 export const getTasks = async () => {
     const tasks = await taskRepository.getTasks();
 
-    const store = asyncLocalStorage.getStore();
-
     if (!isTest) {
+        const store = asyncLocalStorage.getStore();
+
         await activityLogService.createActivityLog({
             action: "READ",
             entityType: "tasks",
@@ -49,9 +49,9 @@ export const createTask = async ({ title, description, projectId, assigneeId, re
         title, description, projectId, assigneeId, reporterId, priorityId, dueDate
     });
 
-    const store = asyncLocalStorage.getStore();
-
     if (!isTest) {
+        const store = asyncLocalStorage.getStore();
+
         await activityLogService.createActivityLog({
             action: "CREATE",
             entityType: "tasks",
@@ -152,13 +152,9 @@ export const updateTask = async (id, { title, description, assigneeId, reporterI
         dueDate
     });
 
-    const store = asyncLocalStorage.getStore();
-
-    console.log();
-    console.log(isTest);
-    console.log(changesTaskHistory.length > 0 && !isTest);
 
     if (changesTaskHistory.length > 0 && !isTest) {
+        const store = asyncLocalStorage.getStore();
         await Promise.all(
             changesTaskHistory.map(change =>
                 taskHistoryRepository.createTaskHistory({
@@ -173,6 +169,8 @@ export const updateTask = async (id, { title, description, assigneeId, reporterI
     }
 
     if (!isTest) {
+        const store = asyncLocalStorage.getStore();
+
         await activityLogService.createActivityLog({
             action: "UPDATE",
             entityType: "tasks",
@@ -223,9 +221,9 @@ export const updateTaskStatus = async (id, { statusId }) => {
 
     const task = await taskRepository.updateTaskStatus({ id, statusId });
 
-    const store = asyncLocalStorage.getStore();
-
     if (!isTest) {
+        const store = asyncLocalStorage.getStore();
+
         await activityLogService.createActivityLog({
             action: "UPDATE",
             entityType: "tasks",
@@ -266,9 +264,9 @@ export const updateTaskStatus = async (id, { statusId }) => {
 export const getTaskById = async (id) => {
     const task = await validateTaskExists(id);
 
-    const store = asyncLocalStorage.getStore();
-
     if (!isTest) {
+        const store = asyncLocalStorage.getStore();
+
         await activityLogService.createActivityLog({
             action: "READ",
             entityType: "tasks",
@@ -296,9 +294,9 @@ export const getTasksByProjectId = async (projectId) => {
 
     const task = await taskRepository.getTasksByProjectId(projectId);
 
-    const store = asyncLocalStorage.getStore();
-
     if (!isTest) {
+        const store = asyncLocalStorage.getStore();
+
         await activityLogService.createActivityLog({
             action: "READ",
             entityType: "tasks",

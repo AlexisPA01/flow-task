@@ -9,20 +9,21 @@ let projectId;
 let userId;
 let organizationId;
 let accessToken;
-let taskId;
 
-const deleteTask = () => {
+const generateKey = (key) => {
+    return key ? key.toUpperCase().trim().replaceAll(" ", "") : undefined;
+};
+
+const deleteProject = () => {
     beforeEach(async () => {
-        await db.query("delete from tasks where id = $1", [taskId]);
+        await db.query("delete from projects where id = $1", [projectId]);
 
         const res = await db.query(
-            `insert into tasks (title, project_id, reporter_id, status_id, priority_id, due_date)
-                values ($1, $2, $3, $4, $5, $6)
-                returning id`,
-            ["Task 1", projectId, userId, 1, 1, "2026-06-01 00:00:00.000"]
+            "insert into projects (name, key, description, organization_id, created_by) values ($1, $2, $3, $4, $5) returning id",
+            ["Test Project Vitest", generateKey("Test Project Vitest"), null, organizationId, userId]
         );
 
-        taskId = res.rows[0].id;
+        projectId = res.rows[0].id;
     });
 };
 
@@ -31,7 +32,7 @@ describe("Tasks API", () => {
         const passwordHash = await bcrypt.hash("12345678", 10);
         const userRes = await db.query(
             "insert into users (email, password_hash) values ($1, $2) returning id",
-            ["testtask@test.com", passwordHash]
+            ["testproject@test.com", passwordHash]
         );
 
         userId = userRes.rows[0].id;
@@ -52,7 +53,7 @@ describe("Tasks API", () => {
 
         const organizationRes = await db.query(
             "insert into organizations (name, slug, owner_id) values ($1, $2, $3) returning id",
-            ["Test Organization Task", generateSlug("Test Organization Task"), userId]
+            ["Test Organization Project", generateSlug("Test Organization Project"), userId]
         );
 
         organizationId = organizationRes.rows[0].id;
@@ -64,51 +65,41 @@ describe("Tasks API", () => {
             },
             env.secretJWT
         );
-
-        const generateKey = (key) => {
-            return key ? key.toUpperCase().trim().replaceAll(" ", "") : undefined;
-        };
-
-        const projectRes = await db.query(
-            "insert into projects (name, key, description, organization_id, created_by) values ($1, $2, $3, $4, $5) returning id",
-            ["Test Project", generateKey("Test Project"), null, organizationId, userId]
-        );
-
-        projectId = projectRes.rows[0].id;
     });
 
     // =========================
-    // POST /api/tasks
+    // POST /api/projects
     // =========================
-    describe("POST /api/tasks", () => {
-        it("should create a task", async () => {
+    describe("POST /api/projects", () => {
+        it("should create a project", async () => {
             const res = await request(app)
-                .post("/api/tasks")
+                .post("/api/projects")
                 .set("Authorization", `Bearer ${accessToken}`)
                 .send({
-                    title: "Test Task",
-                    projectId,
-                    reporterId: userId,
-                    priorityId: 1,
-                    dueDate: "2026-06-01 00:00:00.000"
+                    name: "Test Project",
+                    key: generateKey("Key Test"),
+                    description: "This is a good description for project",
+                    organizationId: organizationId,
+                    createdBy: userId
                 });
+
+            projectId = res.body.data.id;
 
             expect(res.statusCode).toBe(201);
             expect(res.body.success).toBe(true);
-            expect(res.body.message).toBe("Tasks created successfully");
-            expect(res.body.data.title).toBe("Test Task");
+            expect(res.body.message).toBe("Project created successfully");
+            expect(res.body.data.name).toBe("Test Project");
         });
 
         it("should fail with invalid data (Zod)", async () => {
             const res = await request(app)
-                .post("/api/tasks")
+                .post("/api/projects")
                 .set("Authorization", `Bearer ${accessToken}`)
                 .send({
-                    title: "Test Task",
-                    projectId: "1234",
-                    reporterId: "5678",
-                    priorityId: 1,
-                    dueDate: "2026-06-01 00:00:00.000"
+                    name: "Test Project",
+                    key: generateKey("Key Test Project"),
+                    organizationId: organizationId,
+                    createdBy: userId
                 });
 
             expect(res.statusCode).toBe(400);
@@ -118,14 +109,14 @@ describe("Tasks API", () => {
 
         it("should fail if project does not exist (service/validator)", async () => {
             const res = await request(app)
-                .post("/api/tasks")
+                .post("/api/projects")
                 .set("Authorization", `Bearer ${accessToken}`)
                 .send({
-                    title: "Test Task",
-                    projectId: "00000000-0000-0000-0000-000000000000",
-                    reporterId: userId,
-                    priorityId: 1,
-                    dueDate: "2026-06-01 00:00:00.000"
+                    name: "Test Project",
+                    key: generateKey("Key Test Project"),
+                    description: "This is a good description for project",
+                    organizationId: "00000000-0000-0000-0000-000000000000",
+                    createdBy: userId
                 });
 
             expect([400, 404]).toContain(res.statusCode);
@@ -134,38 +125,38 @@ describe("Tasks API", () => {
     });
 
     // =========================
-    // GET /api/tasks
+    // GET /api/projects
     // =========================
-    describe("GET /api/tasks", () => {
-        it("should return tasks", async () => {
-            deleteTask();
+    describe("GET /api/projects", () => {
+        it("should return projects", async () => {
+            deleteProject();
 
-            const res = await request(app).get("/api/tasks").set("Authorization", `Bearer ${accessToken}`);
+            const res = await request(app).get("/api/projects").set("Authorization", `Bearer ${accessToken}`);
 
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
-            expect(res.body.message).toBe("Tasks obtained successfully");
+            expect(res.body.message).toBe("Projects obtained successfully");
             expect(Array.isArray(res.body.data)).toBe(true);
         });
     });
 
     // =========================
-    // GET /api/tasks/by-id/:id
+    // GET /api/projects/by-id/:id
     // =========================
-    describe("GET /api/tasks/by-id/:id", () => {
-        deleteTask();
+    describe("GET /api/projects/by-id/:id", () => {
+        deleteProject();
 
-        it("should return a task", async () => {
-            const res = await request(app).get(`/api/tasks/by-id/${taskId}`).set("Authorization", `Bearer ${accessToken}`);
+        it("should return a project", async () => {
+            const res = await request(app).get(`/api/projects/by-id/${projectId}`).set("Authorization", `Bearer ${accessToken}`);
 
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
-            expect(res.body.message).toBe("Task obtained successfully");
-            expect(res.body.data.id).toBe(taskId);
+            expect(res.body.message).toBe("Project obtained successfully");
+            expect(res.body.data.id).toBe(projectId);
         });
 
         it("should fail with invalid id format", async () => {
-            const res = await request(app).get("/api/tasks/by-id/invalid-id").set("Authorization", `Bearer ${accessToken}`);
+            const res = await request(app).get("/api/projects/by-id/invalid-id").set("Authorization", `Bearer ${accessToken}`);
 
             expect(res.statusCode).toBe(400);
             expect(res.body.success).toBe(false);
@@ -174,31 +165,31 @@ describe("Tasks API", () => {
     });
 
     // =========================
-    // PUT /api/tasks/by-id/:id
+    // PUT /api/projects/by-id/:id
     // =========================
-    describe("PUT /api/tasks/by-id/:id", () => {
-        deleteTask();
+    describe("PUT /api/projects/by-id/:id", () => {
+        deleteProject();
 
-        it("should update a task", async () => {
+        it("should update a project", async () => {
             const res = await request(app)
-                .put(`/api/tasks/by-id/${taskId}`)
+                .put(`/api/projects/by-id/${projectId}`)
                 .set("Authorization", `Bearer ${accessToken}`)
                 .send({
-                    title: "Updated Task"
+                    name: "Updated Project"
                 });
 
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
-            expect(res.body.message).toBe("Tasks updated successfully");
-            expect(res.body.data.title).toBe("Updated Task");
+            expect(res.body.message).toBe("Project updated successfully");
+            expect(res.body.data.name).toBe("Updated Project");
         });
 
         it("should fail with invalid body", async () => {
             const res = await request(app)
-                .put(`/api/tasks/by-id/${taskId}`)
+                .put(`/api/projects/by-id/${projectId}`)
                 .set("Authorization", `Bearer ${accessToken}`)
                 .send({
-                    titleNOT: "Title 1 test changed"
+                    nameNOT: "Name 1 test changed"
                 });
 
             expect(res.statusCode).toBe(400);
@@ -207,44 +198,39 @@ describe("Tasks API", () => {
     });
 
     // =========================
-    // PUT /api/tasks/status/:id
+    // GET /api/projects/by-project/:projectId
     // =========================
-    describe("PUT /api/tasks/status/:id", () => {
-        deleteTask();
-
-        it("should update task status", async () => {
-            const res = await request(app)
-                .put(`/api/tasks/status/${taskId}`)
-                .set("Authorization", `Bearer ${accessToken}`)
-                .send({
-                    statusId: 1
-                });
-
-            expect(res.statusCode).toBe(200);
-            expect(res.body.success).toBe(true);
-            expect(res.body.message).toBe("Tasks status updated successfully");
-        });
-    });
-
-    // =========================
-    // GET /api/tasks/by-project/:projectId
-    // =========================
-    describe("GET /api/tasks/by-project/:projectId", () => {
+    describe("GET /api/projects/by-organization/:projectId", () => {
         beforeEach(async () => {
-            await db.query("delete from tasks where project_id = $1", [projectId]);
+            await db.query("delete from projects where organization_id = $1", [organizationId]);
         });
-        it("should return empty array if no tasks", async () => {
-            const res = await request(app).get(`/api/tasks/by-project/${projectId}`).set("Authorization", `Bearer ${accessToken}`);
+        it("should return empty array if no organization", async () => {
+            const res = await request(app).get(`/api/projects/by-organization/${organizationId}`).set("Authorization", `Bearer ${accessToken}`);
 
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
-            expect(res.body.message).toBe("No tasks found");
+            expect(res.body.message).toBe("No projects found");
             expect(res.body.data).toEqual([]);
         });
     });
 
+    // =========================
+    // GET /api/projects/by-user/:createdBy
+    // =========================
+    describe("GET /api/projects/by-user/:createdBy", () => {
+        deleteProject();
+
+        it("should return empty array of projects", async () => {
+            const res = await request(app).get(`/api/projects/by-user/${userId}`).set("Authorization", `Bearer ${accessToken}`);
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.success).toBe(true);
+            expect(res.body.message).toBe("Projects obtained successfully");
+            expect(Array.isArray(res.body.data)).toBe(true);
+        });
+    });
+
     afterAll(async () => {
-        await db.query("delete from tasks where project_id = $1", [projectId]);
         await db.query("delete from projects where id = $1", [projectId]);
         await db.query("delete from organizations where id = $1", [organizationId]);
         await db.query("delete from users where id = $1", [userId]);

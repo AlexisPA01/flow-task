@@ -1,4 +1,4 @@
-import { createExistsValidator } from "./create-exists-validator.js";
+import { createExistsValidator, createAlreadyExistsValidator } from "./create-exists-validator.js";
 import * as userRepository from "../modules/users/user.repository.js";
 
 export const validateUserExists = createExistsValidator({
@@ -8,6 +8,12 @@ export const validateUserExists = createExistsValidator({
 });
 
 export const validateUserEmailExists = createExistsValidator({
+    getById: userRepository.getUserByEmail,
+    entityName: "users",
+    fieldName: "email"
+});
+
+export const validateUserEmailAlreadyExists = createAlreadyExistsValidator({
     getById: userRepository.getUserByEmail,
     entityName: "users",
     fieldName: "email"
