@@ -102,7 +102,7 @@ npm start
 Swagger documentation is available at:
 
 ```
-/api-docs
+/docs
 ```
 
 ---
