@@ -13,7 +13,11 @@ const app = express();
 setupSwagger(app);
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000"
+    origin: [
+        "http://localhost:3000",
+        "https://flow-task.alexis-patino.xyz",
+        "https://flow-task-skdo.onrender.com/"
+    ]
 }));
 app.use(helmet());
 
